@@ -9,6 +9,8 @@ flask-restful = "*"
 markupsafe = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
+faker = "*"
+requests = "*"
 
 [dev-packages]
 
