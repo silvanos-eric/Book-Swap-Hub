@@ -8,7 +8,7 @@ class Review(db.Model, SerializerMixin): #association table
     __tablename__ = 'reviews'
     
     #serialize rules
-    serialize_rules = ('-book.reviews', '-user.reviews',)
+    serialize_rules = ('-book.reviews', '-user.reviews', '-book.users', '-user.books')
 
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer)
@@ -24,7 +24,7 @@ class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
     #serialize rules
-    serialize_rules = ('-reviews.user',)
+    serialize_rules = ('-reviews.user', '-books.users', 'reviews.book', '-transactions.user')
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String)
@@ -41,7 +41,7 @@ class Book(db.Model, SerializerMixin):
     __tablename__ = 'books'
 
     #serialize rules
-    serialize_rules = ('-reviews.book',)
+    serialize_rules = ('-reviews.book', '-users.books', '-reviews.user', '-transactions.book')
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
@@ -60,7 +60,7 @@ class Transaction(db.Model, SerializerMixin):
     __tablename__ = 'transactions'
 
     #serialize rules
-    serialize_rules = ('-book.transactions', 'user.transactions')
+    serialize_rules = ('-book.transactions', 'user.transactions', '-book.reviews', '-user.reviews')
 
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime)
