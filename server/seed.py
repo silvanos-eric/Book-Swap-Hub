@@ -1,7 +1,8 @@
 from faker import Faker
 import random
 from datetime import datetime
-from app import app, db, User, Book, Review, Transaction 
+from models import db, User, Book, Review, Transaction 
+from app import app
 
 # Initialize Faker
 fake = Faker()
@@ -46,8 +47,8 @@ with app.app_context():
                     title=fake.sentence(nb_words=3),
                     author=fake.name(),
                     price=random.randint(10, 100),  # price between 10 and 100
-                    condition=random.choice([True, False]),  # True for new, False for used
-                    status=random.choice(["available", "sold"]),
+                    condition=random.choice(['new', 'used']),  # True for new, False for used
+                    status=random.choice(["rent", "sale"]),
                     user_id=random.choice([user.id for user in users])  # random user owns the book
                 )
                 books.append(book)
@@ -76,7 +77,7 @@ with app.app_context():
             for _ in range(10):  # create 10 transactions
                 transaction = Transaction(
                     transaction_date=fake.date_time_this_year(),
-                    transaction_type=random.choice(["purchase", "sale"]),
+                    transaction_type=random.choice(["purchase", "sale", "rent"]),
                     user_id=random.choice([user.id for user in users]),
                     book_id=random.choice([book.id for book in books])
                 )
