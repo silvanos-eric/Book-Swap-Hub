@@ -23,6 +23,7 @@ api = Api(app)
 
 # GET /books: Retrieve all books.
 class Books(Resource):
+    """GETs all books, POSTs a new book"""
     def get(self):
         all_books = [book.to_dict() for book in Book.query.all()]
         return make_response(jsonify(all_books), 200)
@@ -61,6 +62,8 @@ class Books(Resource):
         return make_response(new_book.to_dict(), 201)
 
 class BookId(Resource):
+    """GETs a book by id, PATCHes and DELETEs a book"""
+
     def get(self, id):
         book = Book.query.filter_by(id=id).first()
         if book:
@@ -97,6 +100,7 @@ class BookId(Resource):
         return {'message': "You have successfully deleted the '{}' book".format(book.title)}, 200
 
 class BookReviews(Resource):
+    """GETs all reviews of a book, POSTs a new review for a book"""
     def get(self, book_id):
         reviews = [review.to_dict() for review in Review.query.filter_by(book_id=book_id).all()]
         return make_response(jsonify(reviews), 200)
@@ -117,6 +121,7 @@ class BookReviews(Resource):
 
 
 class Transactions(Resource):
+    """GETs all existing transactions, POSTs a new transaction for a book"""
     def get(self):
         try:
             transactions = [transaction.to_dict() for transaction in Transaction.query.all()]
@@ -177,7 +182,25 @@ class Transactions(Resource):
             db.session.rollback()
             return make_response(jsonify({"error": str(e)}), 500)
 
-    
+
+class TransactionId(Resource):
+    """GETs details for a single transaction, DELETEs a transaction"""
+    def get(self, id):
+        try:
+            transaction = Transaction.query.filter(Transaction.id == id).first().to_dict()
+            return make_response(jsonify(transaction), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': "str(e)"})), 500
+
+    def delete(self, id):
+        transaction = Transaction.query.get(id)
+        if not transaction:
+            return {'error': "Transaction not found"}, 404
+        
+        db.session.delete(transaction)
+        db.session.commit()
+        return {'message': "You have successfully deleted the transaction"}, 200
+   
 
 class UserResource(Resource):
     def post(self):
@@ -231,7 +254,7 @@ api.add_resource(Books, '/books')
 api.add_resource(BookId, '/books/<int:id>')
 api.add_resource(BookReviews, '/books/<int:book_id>/reviews')
 api.add_resource(Transactions, '/books/transactions')
-# api.add_resource(TransactionId, '/books/<int:id>/transactions')
+api.add_resource(TransactionId, '/books/transactions/<int:id>') #gets details for a single transaction
 api.add_resource(UserResource, '/users/signup')
 api.add_resource(AuthResource, '/users/login')
 
