@@ -94,21 +94,28 @@ class BookId(Resource):
         
         db.session.delete(book)
         db.session.commit()
-        return {'message': "Book deleted successfully"}, 200
+        return {'message': "You have successfully deleted the '{}' book".format(book.title)}, 200
 
-class ReviewResource(Resource):
+class BookReviews(Resource):
+    def get(self, book_id):
+        reviews = [review.to_dict() for review in Review.query.filter_by(book_id=book_id).all()]
+        return make_response(jsonify(reviews), 200)
+
     def post(self, book_id):
-        content = request.json.get('content')
+        rating = request.json.get('rating')
+        comment = request.json.get('comment')
         user_id = request.json.get('user_id')
+        book_id = request.json.get('book_id')
 
-        new_review = Review(content=content, book_id=book_id, user_id=user_id)
+        if not isinstance(rating, int) or not (1 <= rating <= 5):
+            return {'error': "Rating must be an integer within 1 to 5"}, 400
+
+        new_review = Review(rating=rating, comment=comment, book_id=book_id, user_id=user_id)
         db.session.add(new_review)
         db.session.commit()
         return make_response(new_review.to_dict(), 201)
 
-    def get(self, book_id):
-        reviews = [review.to_dict() for review in Review.query.filter_by(book_id=book_id).all()]
-        return make_response(jsonify(reviews), 200)
+
 
 class TransactionResource(Resource):
     def get(self):
@@ -224,7 +231,7 @@ class AuthResource(Resource):
 
 api.add_resource(Books, '/books')
 api.add_resource(BookId, '/books/<int:id>')
-api.add_resource(ReviewResource, '/books/<int:book_id>/reviews')
+api.add_resource(BookReviews, '/books/<int:book_id>/reviews')
 api.add_resource(UserResource, '/users/signup')
 api.add_resource(AuthResource, '/users/login')
 
