@@ -11,6 +11,8 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 faker = "*"
 requests = "*"
+flask-jwt-extended = "*"
+sqlalchemy-serializer = "*"
 
 [dev-packages]
 
