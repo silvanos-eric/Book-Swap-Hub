@@ -94,7 +94,7 @@ class Transaction(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime)
-    transaction_type = db.Column(db.String)
+    transaction_type = db.Column(Enum('purchase', 'sale', 'rent', name='transaction_type'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"))
 
