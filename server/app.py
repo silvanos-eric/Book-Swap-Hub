@@ -116,8 +116,7 @@ class BookReviews(Resource):
         return make_response(new_review.to_dict(), 201)
 
 
-
-class TransactionResource(Resource):
+class Transactions(Resource):
     def get(self):
         try:
             transactions = [transaction.to_dict() for transaction in Transaction.query.all()]
@@ -178,7 +177,6 @@ class TransactionResource(Resource):
             db.session.rollback()
             return make_response(jsonify({"error": str(e)}), 500)
 
-api.add_resource(TransactionResource, '/transactions')
     
 
 class UserResource(Resource):
@@ -232,6 +230,8 @@ class AuthResource(Resource):
 api.add_resource(Books, '/books')
 api.add_resource(BookId, '/books/<int:id>')
 api.add_resource(BookReviews, '/books/<int:book_id>/reviews')
+api.add_resource(Transactions, '/books/transactions')
+# api.add_resource(TransactionId, '/books/<int:id>/transactions')
 api.add_resource(UserResource, '/users/signup')
 api.add_resource(AuthResource, '/users/login')
 
