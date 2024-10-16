@@ -199,21 +199,25 @@ class TransactionId(Resource):
         
         db.session.delete(transaction)
         db.session.commit()
-        return {'message': "You have successfully deleted the transaction"}, 200
+        return {'message': "You have successfully deleted the transaction for book {}".format(transaction.book_id)}, 200
    
 
-class UserResource(Resource):
+class UserSignUp(Resource):
+    """Authenticates and creates a new user"""
     def post(self):
         username = request.json.get('username')
         email = request.json.get('email')
-        password = request.json.get('password')  # Ensure this is fetched
+        password = request.json.get('password')
         profile_picture = request.json.get('profile_picture')
 
-        print(f"Request data: {request.json}")  # Debug logging
-
+        #verifies all user sign up credentials are valid
         if not username or not email or not password:
             return {'error': 'Username, email, and password must be provided.'}, 400
         
+        user = User.query.filter_by(email=email).first()
+        if user:
+            return make_response({'error': "Email already in use"})
+
         if len(password) < 8:
             return {'error': "Password must be at least 8 characters long."},400
         
@@ -228,35 +232,35 @@ class UserResource(Resource):
             )
             db.session.add(new_user)
             db.session.commit()
-            return make_response(new_user.to_dict(), 201)
-        except IntegrityError:
-            db.session.rollback()
-            return {'error': 'Username or email already exists'}, 400
+            return make_response({"message": "Account created successfully", "details": new_user.to_dict()}, 201)
+
         except Exception as exc:
             db.session.rollback()
-            return {'error': 'Error creating account', 'details': str(exc)}, 500
+            return {'error': 'Error creating account', 'details': str(exc)}, 400
 
-class AuthResource(Resource):
+class UserLogin(Resource):
+    """validates an existing user's credential"""
     def post(self):
         username = request.json.get('username')
         password = request.json.get('password')
         user = User.query.filter_by(username=username).first()
         
-        if user.password is None:
-            return {'error': 'Password not found for this user.'}, 500
+        if not user:
+            return make_response({'error': 'User account for _{}_ not found'.format(username)}, 404)
         
-        if bcrypt.check_password_hash(user.password, password):
-            return {'message': 'Login successful'}, 200
-            
-        return {'error': 'Invalid credentials'}, 401
+        if not bcrypt.check_password_hash(user.password, password):
+            return make_response({'error': "Password is incorrect"}, 401)
 
+        return {'message': 'Welcome back {}. Glad to see you again.'.format(user.username)}, 200
+
+  #hover over the class names to see what each route does    
 api.add_resource(Books, '/books')
 api.add_resource(BookId, '/books/<int:id>')
 api.add_resource(BookReviews, '/books/<int:book_id>/reviews')
 api.add_resource(Transactions, '/books/transactions')
-api.add_resource(TransactionId, '/books/transactions/<int:id>') #gets details for a single transaction
-api.add_resource(UserResource, '/users/signup')
-api.add_resource(AuthResource, '/users/login')
+api.add_resource(TransactionId, '/books/transactions/<int:id>')
+api.add_resource(UserSignUp, '/user/signup') 
+api.add_resource(UserLogin, '/user/login')
 
 @app.route('/')
 def index():
