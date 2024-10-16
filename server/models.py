@@ -96,7 +96,8 @@ class Transaction(db.Model, SerializerMixin):
     __tablename__ = 'transactions'
 
     #serialize rules
-    serialize_rules = ('-book.transactions', 'user.transactions', '-book.reviews', '-user.reviews')
+    # serialize_rules = ('-book.transactions', 'user.transactions', '-book.reviews', '-user.reviews')
+    serialize_only = ('id', 'transaction_date', 'transaction_type', 'user_id', "book_id")
 
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime)
