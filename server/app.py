@@ -35,6 +35,24 @@ class Books(Resource):
         status = request.json.get('status')
         user_id = request.json.get('user_id')
 
+        if not all (['title', 'author', 'price', 'condition', 'status', 'user_id']):
+            return make_response({'error': "Missing required fields"}, 400)
+
+        if not isinstance(title, str) or len(title) <= 0:
+            return make_response(jsonify({"error": "Title must be a string and cannot be empty!"}), 400)
+
+        if condition not in ['new', 'used']:
+            return {'error': "Book condition is either 'new' or 'used'"}, 400
+
+        if status not in ['rent', 'sale']:
+            return {'error': "Book status is either 'rent' or 'sale'"}, 400
+
+        # Verify if the user exists
+        user = User.query.get(user_id)
+        if not user:
+            return make_response(jsonify({"error": "User with ID {} does not exist.".format(user_id)}), 404)
+
+
         new_book = Book(
             title=title, author=author, price=price, condition=condition, status=status, user_id=user_id
         )
