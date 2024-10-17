@@ -1,11 +1,11 @@
-import { useState } from "react";
 import "./App.css";
+import Home from "./pages/Home"
 
 function App() {
 
   return (
     <>
-      <p>Welcome to Book Swap Hub</p>
+      <Home />
     </>
   );
 }
