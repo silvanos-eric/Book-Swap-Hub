@@ -24,6 +24,12 @@ class Review(db.Model, SerializerMixin): #association table
     book = db.relationship('Book', back_populates='reviews')
     user = db.relationship('User', back_populates='reviews')
 
+    @validates('rating')
+    def validate_rating(self, key, rating):
+        if not isinstance(rating, int) or not (1 <= rating <= 5):
+            return {'error': "Rating must be an integer within 1 to 5"}, 400
+        return rating
+    
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
@@ -90,7 +96,8 @@ class Transaction(db.Model, SerializerMixin):
     __tablename__ = 'transactions'
 
     #serialize rules
-    serialize_rules = ('-book.transactions', 'user.transactions', '-book.reviews', '-user.reviews')
+    # serialize_rules = ('-book.transactions', 'user.transactions', '-book.reviews', '-user.reviews')
+    serialize_only = ('id', 'transaction_date', 'transaction_type', 'user_id', "book_id")
 
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime)

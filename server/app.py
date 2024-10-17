@@ -25,6 +25,7 @@ api = Api(app)
 
 # GET /books: Retrieve all books.
 class Books(Resource):
+    """GETs all books, POSTs a new book"""
     def get(self):
         all_books = [book.to_dict() for book in Book.query.all()]
         return make_response(jsonify(all_books), 200)
@@ -37,6 +38,24 @@ class Books(Resource):
         status = request.json.get('status')
         user_id = request.json.get('user_id')
 
+        if not all (['title', 'author', 'price', 'condition', 'status', 'user_id']):
+            return make_response({'error': "Missing required fields"}, 400)
+
+        if not isinstance(title, str) or len(title) <= 0:
+            return make_response(jsonify({"error": "Title must be a string and cannot be empty!"}), 400)
+
+        if condition not in ['new', 'used']:
+            return {'error': "Book condition is either 'new' or 'used'"}, 400
+
+        if status not in ['rent', 'sale']:
+            return {'error': "Book status is either 'rent' or 'sale'"}, 400
+
+        # Verify if the user exists
+        user = User.query.get(user_id)
+        if not user:
+            return make_response(jsonify({"error": "User with ID {} does not exist.".format(user_id)}), 404)
+
+
         new_book = Book(
             title=title, author=author, price=price, condition=condition, status=status, user_id=user_id
         )
@@ -45,6 +64,8 @@ class Books(Resource):
         return make_response(new_book.to_dict(), 201)
 
 class BookId(Resource):
+    """GETs a book by id, PATCHes and DELETEs a book"""
+
     def get(self, id):
         book = Book.query.filter_by(id=id).first()
         if book:
@@ -78,23 +99,31 @@ class BookId(Resource):
         
         db.session.delete(book)
         db.session.commit()
-        return {'message': "Book deleted successfully"}, 200
+        return {'message': "You have successfully deleted the '{}' book".format(book.title)}, 200
 
-class ReviewResource(Resource):
-    def post(self, book_id):
-        content = request.json.get('content')
-        user_id = request.json.get('user_id')
-
-        new_review = Review(content=content, book_id=book_id, user_id=user_id)
-        db.session.add(new_review)
-        db.session.commit()
-        return make_response(new_review.to_dict(), 201)
-
+class BookReviews(Resource):
+    """GETs all reviews of a book, POSTs a new review for a book"""
     def get(self, book_id):
         reviews = [review.to_dict() for review in Review.query.filter_by(book_id=book_id).all()]
         return make_response(jsonify(reviews), 200)
 
-class TransactionResource(Resource):
+    def post(self, book_id):
+        rating = request.json.get('rating')
+        comment = request.json.get('comment')
+        user_id = request.json.get('user_id')
+        book_id = request.json.get('book_id')
+
+        if not isinstance(rating, int) or not (1 <= rating <= 5):
+            return {'error': "Rating must be an integer within 1 to 5"}, 400
+
+        new_review = Review(rating=rating, comment=comment, book_id=book_id, user_id=user_id)
+        db.session.add(new_review)
+        db.session.commit()
+        return make_response(new_review.to_dict(), 201)
+
+
+class Transactions(Resource):
+    """GETs all existing transactions, POSTs a new transaction for a book"""
     def get(self):
         try:
             transactions = [transaction.to_dict() for transaction in Transaction.query.all()]
@@ -155,21 +184,42 @@ class TransactionResource(Resource):
             db.session.rollback()
             return make_response(jsonify({"error": str(e)}), 500)
 
-api.add_resource(TransactionResource, '/transactions')
-    
 
-class UserResource(Resource):
+class TransactionId(Resource):
+    """GETs details for a single transaction, DELETEs a transaction"""
+    def get(self, id):
+        try:
+            transaction = Transaction.query.filter(Transaction.id == id).first().to_dict()
+            return make_response(jsonify(transaction), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': "str(e)"})), 500
+
+    def delete(self, id):
+        transaction = Transaction.query.get(id)
+        if not transaction:
+            return {'error': "Transaction not found"}, 404
+        
+        db.session.delete(transaction)
+        db.session.commit()
+        return {'message': "You have successfully deleted the transaction for book {}".format(transaction.book_id)}, 200
+   
+
+class UserSignUp(Resource):
+    """Authenticates and creates a new user"""
     def post(self):
         username = request.json.get('username')
         email = request.json.get('email')
-        password = request.json.get('password')  # Ensure this is fetched
+        password = request.json.get('password')
         profile_picture = request.json.get('profile_picture')
 
-        print(f"Request data: {request.json}")  # Debug logging
-
+        #verifies all user sign up credentials are valid
         if not username or not email or not password:
             return {'error': 'Username, email, and password must be provided.'}, 400
         
+        user = User.query.filter_by(email=email).first()
+        if user:
+            return make_response({'error': "Email already in use"})
+
         if len(password) < 8:
             return {'error': "Password must be at least 8 characters long."},400
         
@@ -184,33 +234,35 @@ class UserResource(Resource):
             )
             db.session.add(new_user)
             db.session.commit()
-            return make_response(new_user.to_dict(), 201)
-        except IntegrityError:
-            db.session.rollback()
-            return {'error': 'Username or email already exists'}, 400
+            return make_response({"message": "Account created successfully", "details": new_user.to_dict()}, 201)
+
         except Exception as exc:
             db.session.rollback()
-            return {'error': 'Error creating account', 'details': str(exc)}, 500
+            return {'error': 'Error creating account', 'details': str(exc)}, 400
 
-class AuthResource(Resource):
+class UserLogin(Resource):
+    """validates an existing user's credential"""
     def post(self):
         username = request.json.get('username')
         password = request.json.get('password')
         user = User.query.filter_by(username=username).first()
         
-        if user.password is None:
-            return {'error': 'Password not found for this user.'}, 500
+        if not user:
+            return make_response({'error': 'User account for _{}_ not found'.format(username)}, 404)
         
-        if bcrypt.check_password_hash(user.password, password):
-            return {'message': 'Login successful'}, 200
-            
-        return {'error': 'Invalid credentials'}, 401
+        if not bcrypt.check_password_hash(user.password, password):
+            return make_response({'error': "Password is incorrect"}, 401)
 
+        return {'message': 'Welcome back {}. Glad to see you again.'.format(user.username)}, 200
+
+  #hover over the class names to see what each route does    
 api.add_resource(Books, '/books')
 api.add_resource(BookId, '/books/<int:id>')
-api.add_resource(ReviewResource, '/books/<int:book_id>/reviews')
-api.add_resource(UserResource, '/users/signup')
-api.add_resource(AuthResource, '/users/login')
+api.add_resource(BookReviews, '/books/<int:book_id>/reviews')
+api.add_resource(Transactions, '/books/transactions')
+api.add_resource(TransactionId, '/books/transactions/<int:id>')
+api.add_resource(UserSignUp, '/user/signup') 
+api.add_resource(UserLogin, '/user/login')
 
 @app.route('/')
 def index():
