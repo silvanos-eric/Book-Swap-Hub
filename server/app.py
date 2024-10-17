@@ -1,3 +1,4 @@
+from config import Config
 # Books API
 from flask import Flask, make_response, jsonify, request
 from flask_restful import Api, Resource
@@ -9,6 +10,7 @@ from datetime import datetime
 
 # Create a Flask instance
 app = Flask(__name__)
+app.config.from_object(Config)
 
 # Configuration for the database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookshub.db'  
