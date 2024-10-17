@@ -1,8 +1,10 @@
+from config import Config
 from flask import Flask
 from flask_restful import Api, Resource
 
 # Create a Flask instance
 app = Flask(__name__)
+app.config.from_object(Config)
 
 # Add extensions to use with flask
 api = Api(app)
