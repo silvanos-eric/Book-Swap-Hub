@@ -57,7 +57,7 @@ def seed():
         sellers = User.get_users_by_role(
             'seller')  # Fetch sellers after users are created
         for _ in range(no_of_books):
-            title = fake.sentence(nb_words=3)
+            title = fake.sentence(nb_words=5)
             author = fake.name()
             price = fake.random_int(min=20, max=500)
             condition = rc.choice(['new', 'used'])
