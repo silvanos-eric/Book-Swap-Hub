@@ -26,7 +26,7 @@ def seed():
 
     # Creating roles
     print('Creating roles...')
-    role_name_list = ['seller', 'buyer']
+    role_name_list = ['seller', 'customer']
     for role in role_name_list:
         new_role = Role(name=role)
         db.session.add(new_role)
@@ -78,9 +78,9 @@ def seed():
     # Create transactions
     print(f'Creating {no_of_transactions} transactions...')
     for _ in range(no_of_transactions):
-        # Select a random buyer
-        buyers = User.get_users_by_role('buyer')
-        buyer = rc.choice(buyers)
+        # Select a random customer
+        customers = User.get_users_by_role('customer')
+        customer = rc.choice(customers)
 
         # Select a random available book
         available_books = Book.get_books_by_status('available')
@@ -92,14 +92,17 @@ def seed():
         transaction_type = rc.choice(['rent', 'buy'])
 
         new_transaction = Transaction(transaction_type=transaction_type)
-        new_transaction.user = buyer
+        new_transaction.user = customer
         new_transaction.book = available_book
 
         db.session.add(new_transaction)
         db.session.commit()
 
+    # Create reviews
+
 
 if __name__ == '__main__':
     with app.app_context():
+        print('Starting.')
         seed()
         print('Done.')

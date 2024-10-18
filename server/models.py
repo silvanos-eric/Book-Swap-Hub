@@ -9,7 +9,7 @@ from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
-VALID_ROLES = ['seller', 'buyer']
+VALID_ROLES = ['seller', 'customer']
 
 # Association table for many-to-many relationship between User and Role
 user_roles = db.Table(
@@ -241,7 +241,7 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(Enum('seller', 'buyer'), nullable=False, unique=True)
+    name = db.Column(Enum('seller', 'customer'), nullable=False, unique=True)
 
     def __repr__(self):
         return f'<Role {self.name}>'
