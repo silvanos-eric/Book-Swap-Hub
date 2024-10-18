@@ -56,7 +56,7 @@ def seed():
         author = fake.name()
         price = fake.random_int(min=20, max=500)
         condition = rc.choice(['new', 'used'])
-        status = rc.choice(['available', 'sold', 'rented'])
+        status = 'available'
 
         new_book = Book(title=title,
                         author=author,

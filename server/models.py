@@ -137,7 +137,7 @@ class Book(db.Model, SerializerMixin):
 
     # Relationships
     reviews = db.relationship('Review', backref='book')
-    transactions = db.relationship('Transaction', backref='book')
+    transactions = db.relationship('Transaction', backref='_book')
 
     @classmethod
     def get_books_by_status(cls, status):
@@ -172,6 +172,23 @@ class Transaction(db.Model, SerializerMixin):
     returned = db.Column(
         db.Boolean, default=False, nullable=False
     )  # Status to track if the book is returned (applicable for rentals)
+
+    @property
+    def book(self):
+        return self._book
+
+    @book.setter
+    def book(self, value):
+        if value.status in ['sold', 'rented']:
+            raise ValueError(
+                f"Book '{value.title}' is already '{value.status}' and cannot be added to the transaction."
+            )
+        if self.transaction_type == 'buy':
+            value.status = 'sold'
+        elif self.transaction_type == 'rent':
+            value.status = 'rented'
+
+        self._book = value
 
     # ORM-level validation for transaction_type
     @validates('transaction_type')
@@ -215,22 +232,6 @@ class Review(db.Model, SerializerMixin):
         if not (1 <= rating <= 5):
             raise ValueError("Rating must be between 1 and 5")
         return rating
-
-    @validates('book_id')
-    def validate_book_status(self, _, book_id):
-        """
-        Prevent adding a book to a transaction if its status is 'sold' or 'rented'.
-        """
-        # Fetch the book from the database
-        book = Book.query.get(book_id)
-
-        # Check if the book is sold or rented
-        if book.status != 'available':
-            raise ValueError(
-                f"Book '{book.title}' is currently '{book.status}' and cannot be added to the transaction."
-            )
-
-        return book_id
 
     def __repr__(self):
         return f"<Review {self.id} {self.comment}>"
