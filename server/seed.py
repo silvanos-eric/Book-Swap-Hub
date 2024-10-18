@@ -1,4 +1,3 @@
-import random
 import random as rc
 from datetime import datetime
 
@@ -21,7 +20,7 @@ def seed():
 
     # Number of records
     no_of_users = 5
-    no_of_books = 20
+    no_of_books = 30
     no_of_transactions = 10
     no_of_reviews = 8
 
@@ -51,10 +50,9 @@ def seed():
 
     # Creating Books
     print(f'Creating {no_of_books} books...')
-    user_list = User.query.all()
     for _ in range(no_of_books):
         # Create book
-        title = fake.sentence(variable_nb_words=5)
+        title = fake.sentence(nb_words=3)
         author = fake.name()
         price = fake.random_int(min=20, max=500)
         condition = rc.choice(['new', 'used'])
@@ -67,18 +65,37 @@ def seed():
                         status=status)
 
         # Select a random seller
-        seller = None
-        while True:
-            user = rc.choice(user_list)
-            if user.has_role('seller'):
-                seller = user
-                break
+        sellers = User.get_users_by_role('seller')
+        seller = rc.choice(sellers)
 
         # Set seller as owner
         new_book.user = seller
 
         # Save to database
         db.session.add(new_book)
+        db.session.commit()
+
+    # Create transactions
+    print(f'Creating {no_of_transactions} transactions...')
+    for _ in range(no_of_transactions):
+        # Select a random buyer
+        buyers = User.get_users_by_role('buyer')
+        buyer = rc.choice(buyers)
+
+        # Select a random available book
+        available_books = Book.get_books_by_status('available')
+        # Out of available books quit loop
+        if not available_books:
+            break
+        available_book = rc.choice(available_books)
+
+        transaction_type = rc.choice(['rent', 'buy'])
+
+        new_transaction = Transaction(transaction_type=transaction_type)
+        new_transaction.user = buyer
+        new_transaction.book = available_book
+
+        db.session.add(new_transaction)
         db.session.commit()
 
 

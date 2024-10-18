@@ -2,12 +2,14 @@ from config import bcrypt
 from email_validator import EmailNotValidError, validate_email
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Enum, func
+from sqlalchemy import Enum, event, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
+
+VALID_ROLES = ['seller', 'buyer']
 
 # Association table for many-to-many relationship between User and Role
 user_roles = db.Table(
@@ -92,6 +94,17 @@ class User(db.Model, SerializerMixin):
     def authenticate(self, password):
         return bcrypt.check_password_hash(self._password_hash, password)
 
+    @classmethod
+    def get_users_by_role(cls, role_name):
+        """
+        Return all users who have the specified role.
+        """
+        if role_name not in VALID_ROLES:
+            raise ValueError(
+                f'Invalid role. Role must be one of: {", ".join(VALID_ROLES)}')
+        return cls.query.join(user_roles).join(Role).filter(
+            Role.name == role_name).all()
+
     def __repr__(self):
         return f"<User {self.username}>"
 
@@ -126,53 +139,12 @@ class Book(db.Model, SerializerMixin):
     reviews = db.relationship('Review', backref='book')
     transactions = db.relationship('Transaction', backref='book')
 
+    @classmethod
+    def get_books_by_status(cls, status):
+        return cls.query.filter_by(status=status).all()
+
     def __repr__(self):
         return f"<Book {self.id} : {self.title}>"
-
-
-class Review(db.Model, SerializerMixin):
-    __tablename__ = 'reviews'
-
-    id = db.Column(db.Integer,
-                   primary_key=True)  # Auto-incrementing ID for each review
-    rating = db.Column(db.Integer, nullable=False)  # Rating between 1 and 5
-    comment = db.Column(db.Text, nullable=True)  # Optional review comment
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-    )  # Foreign key to User model
-    book_id = db.Column(
-        db.Integer,
-        db.ForeignKey('books.id', ondelete='CASCADE'),
-        nullable=False,
-    )  # Foreign key to Book model
-
-    # Database-level constraint to ensure rating is between 1 and 5
-    __table_args__ = (db.CheckConstraint('rating >= 1 AND rating <= 5',
-                                         name='check_rating_range'), )
-
-    # ORM-level validation for rating
-    @validates('rating')
-    def validate_rating(self, _, rating):
-        if not isinstance(rating, int):
-            raise ValueError("Rating must be an integer")
-        if not (1 <= rating <= 5):
-            raise ValueError("Rating must be between 1 and 5")
-        return rating
-
-    def __repr__(self):
-        return f"<Review {self.id} {self.comment}>"
-
-
-class Role(db.Model):
-    __tablename__ = 'roles'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(Enum('seller', 'buyer'), nullable=False, unique=True)
-
-    def __repr__(self):
-        return f'<Role {self.name}>'
 
 
 class Transaction(db.Model, SerializerMixin):
@@ -209,15 +181,66 @@ class Transaction(db.Model, SerializerMixin):
                 "Invalid transaction type. Must be either 'rent' or 'buy'.")
         return transaction_type
 
-    # Validation to prevent renting or buying a non-available book
+    def __repr__(self):
+        return f"<Transaction {self.id} for Book {self.book_id}>"
+
+
+class Review(db.Model, SerializerMixin):
+    __tablename__ = 'reviews'
+
+    id = db.Column(db.Integer,
+                   primary_key=True)  # Auto-incrementing ID for each review
+    rating = db.Column(db.Integer, nullable=False)  # Rating between 1 and 5
+    comment = db.Column(db.Text, nullable=True)  # Optional review comment
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )  # Foreign key to User model
+    book_id = db.Column(
+        db.Integer,
+        db.ForeignKey('books.id', ondelete='CASCADE'),
+        nullable=False,
+    )  # Foreign key to Book model
+
+    # Database-level constraint to ensure rating is between 1 and 5
+    __table_args__ = (db.CheckConstraint('rating >= 1 AND rating <= 5',
+                                         name='check_rating_range'), )
+
+    # ORM-level validation for rating
+    @validates('rating')
+    def validate_rating(self, _, rating):
+        if not isinstance(rating, int):
+            raise ValueError("Rating must be an integer")
+        if not (1 <= rating <= 5):
+            raise ValueError("Rating must be between 1 and 5")
+        return rating
+
     @validates('book_id')
     def validate_book_status(self, _, book_id):
+        """
+        Prevent adding a book to a transaction if its status is 'sold' or 'rented'.
+        """
+        # Fetch the book from the database
         book = Book.query.get(book_id)
+
+        # Check if the book is sold or rented
         if book.status != 'available':
             raise ValueError(
-                f"Book '{book.title}' is currently {book.status} and cannot be rented or bought."
+                f"Book '{book.title}' is currently '{book.status}' and cannot be added to the transaction."
             )
+
         return book_id
 
     def __repr__(self):
-        return f"<Transaction {self.id} for Book {self.book_id}>"
+        return f"<Review {self.id} {self.comment}>"
+
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(Enum('seller', 'buyer'), nullable=False, unique=True)
+
+    def __repr__(self):
+        return f'<Role {self.name}>'
