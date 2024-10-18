@@ -1,5 +1,7 @@
+from app import app
 from models import User
 
 if __name__ == '__main__':
-    import ipdb
-    ipdb.set_trace()
+    with app.app_context():
+        import ipdb
+        ipdb.set_trace()
