@@ -74,7 +74,7 @@ class User(db.Model, SerializerMixin):
 
     # Utility to add a role to a user
     def add_role(self, role_name):
-        role = Role.query.filter_by(name=role_name)
+        self.roles.append(Role.query.filter_by(name=role_name))
 
     # Check if the user has a specifc role
     def has_role(self, role_name):
