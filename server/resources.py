@@ -13,15 +13,7 @@ class Books(Resource):
 
     def post(self):
         try:
-            user_id = session.get('user_id')
-
-            if not user_id:
-                return {'error': 'Authentication required'}, 401
-
-            user = db.session.get(User, user_id)
-
-            if not user:
-                return {'error': 'Authentication required'}, 401
+            _, user_id = validate_login()
 
             data = request.json
             title = data['title']
@@ -38,8 +30,12 @@ class Books(Resource):
             db.session.add(new_book)
             db.session.commit()
 
+            return new_book.to_dict, 201
+
             # TODO: Complete logic after building auth routes
         except (KeyError, ValueError) as e:
+            if isinstance(e, KeyError) and 'Auth' in str(e):
+                return {'error': str(e)}, 401
 
             if isinstance(e, KeyError):
                 error = f'Missing required field: {e}'
@@ -62,17 +58,8 @@ class BookByID(Resource):
             return {'error': 'An unkown error occurred'}, 500
 
     def patch(self, id):
-        user_id = session.get('user_id')
-
-        if not user_id:
-            return {'error': 'Authentication required'}, 401
-
-        user = db.session.get(User, user_id)
-
-        if not user:
-            return {'error': 'Authentication required'}, 401
-
         try:
+            validate_login()
             data = request.json
 
             book = db.session.get(Book, id)
@@ -84,6 +71,9 @@ class BookByID(Resource):
             db.session.commit(book)
 
             # TODO: Complete logic after implementing auth routes
+        except (ValueError) as e:
+            if isinstance(e, ValueError) and 'Auth' in str(e):
+                return {'error': str(e)}, 401
         except:
             return {'error': 'An unkown error occurred'}, 500
 
@@ -96,3 +86,45 @@ class Reviews(Resource):
         review_dict_list = [review.to_dict() for review in review_list]
 
         return review_dict_list
+
+    def post(self):
+        try:
+            user_id = validate_login()
+            data = request.json
+
+            rating = data['rating']
+            comment = data.get('comment')
+            book_id = data['book_id']
+
+            new_review = Review(rating=rating,
+                                comment=comment,
+                                user_id=user_id,
+                                book_id=book_id)
+
+            db.session.add(new_review)
+            db.session.commit()
+
+            return new_review.to_dict(), 201
+        except (KeyError, ValueError) as e:
+            if isinstance(e, KeyError):
+                return {'error': f'Missing required field: {e}'}
+            if isinstance(e, ValueError) and 'Auth' in str(e):
+                return {'error': str(e)}, 401
+        except:
+            return {'error', 'An unknown error occurred'}, 500
+
+
+def validate_login():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        raise ValueError('Authentication Required')
+
+    print(user_id)
+
+    user = db.session.get(User, user_id)
+
+    if not user:
+        raise ValueError('Authentication Required')
+
+    return user_id
