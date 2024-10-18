@@ -2,12 +2,15 @@ from config import bcrypt
 from email_validator import EmailNotValidError, validate_email
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Enum, func
+from sqlalchemy import Enum, event, func
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
+
+VALID_ROLES = ['seller', 'customer']
 
 # Association table for many-to-many relationship between User and Role
 user_roles = db.Table(
@@ -34,8 +37,7 @@ class User(db.Model, SerializerMixin):
         db.String(255), nullable=False,
         unique=True)  # Email with max length of 255 characters, must be unique
     _password_hash = db.Column(
-        db.String(255),
-        nullable=False)  # Password hash with max length of 255 characters
+        db.String(255), )  # Password hash with max length of 255 characters
     profile_picture = db.Column(db.Text)  # Profile picture (optional)
     created_at = db.Column(db.DateTime, default=func.now(
     ))  # Use func.now() to set the current timestamp for creation
@@ -44,9 +46,10 @@ class User(db.Model, SerializerMixin):
         onupdate=func.now())  # Automatically updated on record modification
 
     # Relationships
-    books = db.relationship('Book',
-                            backref='user',
-                            cascade='all, delete-orphan')
+    books_for_sale = db.relationship('Book',
+                                     backref='user',
+                                     cascade='all, delete-orphan')
+    purchased_books = association_proxy('transactions', 'book')
     reviews = db.relationship('Review',
                               backref='user',
                               cascade='all, delete-orphan')
@@ -75,7 +78,7 @@ class User(db.Model, SerializerMixin):
 
     # Utility to add a role to a user
     def add_role(self, role_name):
-        role = Role.query.filter_by(name=role_name)
+        self.roles.append(Role.query.filter_by(name=role_name))
 
     # Check if the user has a specifc role
     def has_role(self, role_name):
@@ -92,6 +95,17 @@ class User(db.Model, SerializerMixin):
 
     def authenticate(self, password):
         return bcrypt.check_password_hash(self._password_hash, password)
+
+    @classmethod
+    def get_users_by_role(cls, role_name):
+        """
+        Return all users who have the specified role.
+        """
+        if role_name not in VALID_ROLES:
+            raise ValueError(
+                f'Invalid role. Role must be one of: {", ".join(VALID_ROLES)}')
+        return cls.query.join(user_roles).join(Role).filter(
+            Role.name == role_name).all()
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -124,11 +138,72 @@ class Book(db.Model, SerializerMixin):
     )  # Foreign key to the users table
 
     # Relationships
-    reviews = db.relationship('Review', backref='book')
-    transactions = db.relationship('Tranasction', backref='book')
+    reviews = db.relationship('Review',
+                              backref='book',
+                              cascade='all, delete-orphan')
+    transactions = db.relationship('Transaction', backref='_book')
+
+    @classmethod
+    def get_books_by_status(cls, status):
+        return cls.query.filter_by(status=status).all()
 
     def __repr__(self):
         return f"<Book {self.id} : {self.title}>"
+
+
+class Transaction(db.Model, SerializerMixin):
+    __tablename__ = 'transactions'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True)  # Auto-incrementing ID for each transaction
+    transaction_date = db.Column(
+        db.DateTime, default=func.now(),
+        nullable=False)  # Date of transaction, defaults to current time
+    transaction_type = db.Column(
+        Enum('rent', 'buy', name='transaction_type'),
+        nullable=False)  # Type of transaction (rent or buy)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )  # Foreign key to User model
+    book_id = db.Column(
+        db.Integer,
+        db.ForeignKey('books.id', ondelete='CASCADE'),
+        nullable=False,
+    )  # Foreign key to Book model
+    returned = db.Column(
+        db.Boolean, default=False, nullable=False
+    )  # Status to track if the book is returned (applicable for rentals)
+
+    @property
+    def book(self):
+        return self._book
+
+    @book.setter
+    def book(self, value):
+        if value.status in ['sold', 'rented']:
+            raise ValueError(
+                f"Book '{value.title}' is already '{value.status}' and cannot be added to the transaction."
+            )
+        if self.transaction_type == 'buy':
+            value.status = 'sold'
+        elif self.transaction_type == 'rent':
+            value.status = 'rented'
+
+        self._book = value
+
+    # ORM-level validation for transaction_type
+    @validates('transaction_type')
+    def validate_transaction_type(self, _, transaction_type):
+        if transaction_type not in ['rent', 'buy']:
+            raise ValueError(
+                "Invalid transaction type. Must be either 'rent' or 'buy'.")
+        return transaction_type
+
+    def __repr__(self):
+        return f"<Transaction {self.id} for Book {self.book_id}>"
 
 
 class Review(db.Model, SerializerMixin):
@@ -170,45 +245,7 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(Enum('seller', 'buyer'), nullable=False, unique=True)
+    name = db.Column(Enum('seller', 'customer'), nullable=False, unique=True)
 
     def __repr__(self):
         return f'<Role {self.name}>'
-
-
-class Transactions(db.Model, SerializerMixin):
-    __tablename__ = 'transactions'
-
-    id = db.Column(
-        db.Integer,
-        primary_key=True)  # Auto-incrementing ID for each transaction
-    transaction_date = db.Column(
-        db.DateTime, default=func.now(),
-        nullable=False)  # Date of transaction, defaults to current time
-    transaction_type = db.Column(
-        Enum('rent', 'buy', name='transaction_type'),
-        nullable=False)  # Type of transaction (rent or buy)
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-    )  # Foreign key to User model
-    book_id = db.Column(
-        db.Integer,
-        db.ForeignKey('books.id', ondelete='CASCADE'),
-        nullable=False,
-    )  # Foreign key to Book model
-    returned = db.Column(
-        db.Boolean, default=False, nullable=False
-    )  # Status to track if the book is returned (applicable for rentals)
-
-    # ORM-level validation for transaction_type
-    @validates('transaction_type')
-    def validate_transaction_type(self, _, transaction_type):
-        if transaction_type not in ['rent', 'buy']:
-            raise ValueError(
-                "Invalid transaction type. Must be either 'rent' or 'buy'.")
-        return transaction_type
-
-    def __repr__(self):
-        return f"<Transaction {self.id} for Book {self.book_id}>"

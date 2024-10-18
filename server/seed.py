@@ -1,96 +1,131 @@
-from faker import Faker
-import random
+import random as rc
 from datetime import datetime
-from models import db, User, Book, Review, Transaction 
+
 from app import app
+from faker import Faker
+from models import Book, Review, Role, Transaction, User, db, user_roles
 
-# Initialize Faker
-fake = Faker()
 
-with app.app_context():  
-    # Delete existing data
+def seed():
+    # Initialize Faker
+    fake = Faker()
+
+    # Reset database
+    print('Resetting database...')
+    db.session.query(user_roles).delete()
+    Review.query.delete()
+    Transaction.query.delete()
+    Book.query.delete()
+    User.query.delete()
+    Role.query.delete()
+    db.session.commit()
+
+    # Number of records
+    no_of_users = 5
+    no_of_books = 30
+    no_of_transactions = 10
+    no_of_reviews = 5
+
     try:
-        print("Deleting existing data...")
-        Review.query.delete()
-        Transaction.query.delete()
-        Book.query.delete()
-        User.query.delete()
-        db.session.commit()  # Commit deletions
-        print("Deleted all records.")
+        # Creating roles
+        print('Creating roles...')
+        role_name_list = ['seller', 'customer']
+        roles = []
+        for role_name in role_name_list:
+            role = Role(name=role_name)
+            db.session.add(role)
+            roles.append(role)
+        db.session.commit()
+
+        # Creating users
+        print(f'Creating {no_of_users} users...')
+        for _ in range(no_of_users):
+            username = fake.unique.user_name()
+            email = f'{username}@student.moringaschool.com'
+            profile_picture = fake.image_url()
+            role = rc.choice(roles)
+
+            new_user = User(username=username,
+                            email=email,
+                            profile_picture=profile_picture)
+            new_user.roles.append(role)
+            db.session.add(new_user)
+        db.session.commit()
+
+        # Creating Books
+        print(f'Creating {no_of_books} books...')
+        sellers = User.get_users_by_role(
+            'seller')  # Fetch sellers after users are created
+        for _ in range(no_of_books):
+            title = fake.sentence(nb_words=3)
+            author = fake.name()
+            price = fake.random_int(min=20, max=500)
+            condition = rc.choice(['new', 'used'])
+
+            new_book = Book(
+                title=title,
+                author=author,
+                price=price,
+                condition=condition,
+                status='available',
+                user=rc.choice(sellers)  # Assign random seller as the owner
+            )
+            db.session.add(new_book)
+        db.session.commit()
+
+        # Creating transactions
+        print(f'Creating {no_of_transactions} transactions...')
+        customers = User.get_users_by_role('customer')  # Fetch customers
+        for _ in range(no_of_transactions):
+            available_books = Book.get_books_by_status('available')
+            if not available_books:
+                break  # Stop if no available books left
+
+            customer = rc.choice(customers)
+            available_book = rc.choice(available_books)
+            transaction_type = rc.choice(['rent', 'buy'])
+
+            new_transaction = Transaction(transaction_type=transaction_type,
+                                          user=customer,
+                                          book=available_book)
+            db.session.add(new_transaction)
+
+        db.session.commit()
+
+        # Creating reviews
+        print(f'Creating {no_of_reviews} reviews...')
+        customers_with_transactions = [
+            customer for customer in customers if customer.transactions
+        ]
+        for _ in range(no_of_reviews):
+            if not customers_with_transactions:
+                break  # Stop if no customers with transactions are left
+
+            customer = rc.choice(customers_with_transactions)
+            transaction = rc.choice(customer.transactions)
+
+            # Create review for the selected transaction's book
+            rating = rc.choice(range(1, 6))
+            comment = fake.sentence(nb_words=10)
+
+            new_review = Review(
+                rating=rating,
+                comment=comment,
+                user_id=customer.id,  # Explicitly assign user_id
+                book_id=transaction.book.id  # Explicitly assign book_id
+            )
+            db.session.add(new_review)
+
+        db.session.commit()
+        print("Seeding completed successfully.")
+
     except Exception as e:
-        db.session.rollback()
-        print(f"Error while deleting records: {e}")
+        db.session.rollback()  # Rollback session in case of error
+        print(f"Error during seeding: {e}")
 
-    # The seed function
-    def seed_database():
-        try:
-            # Generate Users
-            users = []
-            print("Creating users...")
-            for _ in range(10):  # create 10 users
-                user = User(
-                    username=fake.user_name(),
-                    email=fake.email(),
-                    password=fake.password(),
-                    profile_picture=fake.image_url()
-                )
-                users.append(user)
-                db.session.add(user)
-            db.session.commit()  # Commit all users
-            print(f"Created {len(users)} users.")
-            
-            # Generate Books
-            books = []
-            print("Creating books...")
-            for _ in range(10):  # create 10 books
-                book = Book(
-                    title=fake.sentence(nb_words=3),
-                    author=fake.name(),
-                    price=random.randint(10, 100),  # price between 10 and 100
-                    condition=random.choice(['new', 'used']),  # True for new, False for used
-                    status=random.choice(["rent", "sale"]),
-                    user_id=random.choice([user.id for user in users])  # random user owns the book
-                )
-                books.append(book)
-                db.session.add(book)
-            db.session.commit()  # Commit all books
-            print(f"Created {len(books)} books.")
 
-            # Generate Reviews
-            reviews = []
-            print("Creating reviews...")
-            for _ in range(20):  # create 20 reviews
-                review = Review(
-                    rating=random.randint(1, 5),  # rating between 1 and 5
-                    comment=fake.text(),
-                    user_id=random.choice([user.id for user in users]),
-                    book_id=random.choice([book.id for book in books])
-                )
-                reviews.append(review)
-                db.session.add(review)
-            db.session.commit()  # Commit all reviews
-            print(f"Created {len(reviews)} reviews.")
-
-            # Generate Transactions
-            transactions = []
-            print("Creating transactions...")
-            for _ in range(10):  # create 10 transactions
-                transaction = Transaction(
-                    transaction_date=fake.date_time_this_year(),
-                    transaction_type=random.choice(["purchase", "sale", "rent"]),
-                    user_id=random.choice([user.id for user in users]),
-                    book_id=random.choice([book.id for book in books])
-                )
-                transactions.append(transaction)
-                db.session.add(transaction)
-            db.session.commit()  # Commit all transactions
-            print(f"Created {len(transactions)} transactions.")
-            
-            print("Successfully updated bookshub database.")
-        
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error while seeding database: {e}")
-
-    # Call seed function
-    seed_database()
+if __name__ == '__main__':
+    with app.app_context():
+        print('Starting...')
+        seed()
+        print('Done.')
