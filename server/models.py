@@ -138,7 +138,9 @@ class Book(db.Model, SerializerMixin):
     )  # Foreign key to the users table
 
     # Relationships
-    reviews = db.relationship('Review', backref='book')
+    reviews = db.relationship('Review',
+                              backref='book',
+                              cascade='all, delete-orphan')
     transactions = db.relationship('Transaction', backref='_book')
 
     @classmethod
