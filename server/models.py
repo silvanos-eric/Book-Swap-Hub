@@ -3,6 +3,7 @@ from email_validator import EmailNotValidError, validate_email
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Enum, event, func
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
@@ -45,9 +46,10 @@ class User(db.Model, SerializerMixin):
         onupdate=func.now())  # Automatically updated on record modification
 
     # Relationships
-    books = db.relationship('Book',
-                            backref='user',
-                            cascade='all, delete-orphan')
+    books_for_sale = db.relationship('Book',
+                                     backref='user',
+                                     cascade='all, delete-orphan')
+    purchased_books = association_proxy('transactions', 'book')
     reviews = db.relationship('Review',
                               backref='user',
                               cascade='all, delete-orphan')
