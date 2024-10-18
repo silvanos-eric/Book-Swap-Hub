@@ -1,107 +1,100 @@
+from email_validator import EmailNotValidError, validate_email
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import Enum
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import validates
-import re
+from sqlalchemy.sql import func
+from sqlalchemy_serializer import SerializerMixin
 
-db = SQLAlchemy() #initializes the database
+db = SQLAlchemy()
 
-class Review(db.Model, SerializerMixin): #association table
-    __tablename__ = 'reviews'
-    
-    #serialize rules
-    # serialize_rules = ('-book.reviews', '-user.reviews', '-book.users', '-user.books')
-    serialize_only = ('id', 'rating', 'comment', 'user_id', 'book_id')
 
-    id = db.Column(db.Integer, primary_key=True)
-    rating = db.Column(db.Integer)
-    comment = db.Column(db.String)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    book_id = db.Column(db.Integer, db.ForeignKey("books.id"))
-
-    # relationships
-    book = db.relationship('Book', back_populates='reviews')
-    user = db.relationship('User', back_populates='reviews')
-
-    @validates('rating')
-    def validate_rating(self, key, rating):
-        if not isinstance(rating, int) or not (1 <= rating <= 5):
-            return {'error': "Rating must be an integer within 1 to 5"}, 400
-        return rating
-    
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    #serialize rules
-    serialize_rules = ('-reviews.user', '-books.users', 'reviews.book', '-transactions.user')
+    id = db.Column(db.Integer,
+                   primary_key=True)  # Auto-incrementing primary key
+    username = db.Column(
+        db.String(50), nullable=False, unique=True
+    )  # Username with max length of 50 characters, must be unique
+    email = db.Column(
+        db.String(255), nullable=False,
+        unique=True)  # Email with max length of 255 characters, must be unique
+    _password_hash = db.Column(
+        db.String(255),
+        nullable=False)  # Password hash with max length of 255 characters
+    profile_picture = db.Column(db.Text)  # Profile picture (optional)
+    created_at = db.Column(db.DateTime, default=func.now(
+    ))  # Use func.now() to set the current timestamp for creation
+    updated_at = db.Column(
+        db.DateTime, default=func.now(),
+        onupdate=func.now())  # Automatically updated on record modification
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False, unique=True)
-    email = db.Column(db.String, nullable=False, unique=True)
-    password = db.Column(db.String, nullable=False)
-    profile_picture = db.Column(db.String)
+    __table_args__ = (db.CheckConstraint(
+        "email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'",
+        name='check_email_format'), )
 
-    # relationships
-    reviews = db.relationship('Review', back_populates='user')
-    books = association_proxy('reviews', 'book', creator=lambda bookObj: Review(book=bookObj))
-    transactions = db.relationship('Transaction', back_populates='user')
-    
+    def __repr__(self):
+        return f"<User {self.username}>"
+
     @validates('email')
-    def validate_email(self, key, email):
-        if not self.is_valid_email(email):
-            raise ValueError("Invalid email format")
-        return email
-    
-    @validates('password')
-    def validate_password(self, key, password):
-        if len(password) < 8:
-            raise ValueError("Password must be at least 8 characters long.")
-        return password   
-          
-    @validates('username')
-    def validate_username(self, key, username):
-        user = User.query.filter_by(username=username).first()    
+    def validate_email(self, _, email):
+        """
+        Validate the email address provided by the user and return the
+        normalized email if valid, or raise a ValueError if invalid.
+        """
+        try:
+            # Validate the email using the email-validator library
+            valid = validate_email(email)
+            # Return the normalized email (e.g., lowercase and trimmed)
+            return valid.email
+        except EmailNotValidError as e:
+            # Raise an exception for invalid emails
+            raise ValueError(f'Invalid email address: {e}')
 
-        if user:
-            raise ValueError("Username already exists")
-        return username
-    
-    @staticmethod
-    def is_valid_email(email):
-        """Checks if the email format is valid using regex."""
-        email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-        return re.match(email_regex, email) is not None
 
 class Book(db.Model, SerializerMixin):
     __tablename__ = 'books'
 
     #serialize rules
-    serialize_rules = ('-reviews.book', '-users.books', '-reviews.user', '-transactions.book')
+    serialize_rules = ('-reviews.book', '-users.books', '-reviews.user',
+                       '-transactions.book')
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     author = db.Column(db.String, nullable=False)
     price = db.Column(db.Integer, nullable=False, default=0)
-    condition = db.Column(Enum('new', 'used', name='book_condition'), nullable=False, default='new') #used or new
-    status = db.Column(Enum('rent', 'sale', name='book_status'), nullable=False, default='rent') #rent or sale
+    condition = db.Column(Enum('new', 'used', name='book_condition'),
+                          nullable=False,
+                          default='new')  #used or new
+    status = db.Column(Enum('rent', 'sale', name='book_status'),
+                       nullable=False,
+                       default='rent')  #rent or sale
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     # relationships
     reviews = db.relationship('Review', back_populates='book')
-    users = association_proxy('reviews', 'user', creator=lambda userObj: Review(user=userObj))
+    users = association_proxy('reviews',
+                              'user',
+                              creator=lambda userObj: Review(user=userObj))
     transactions = db.relationship('Transaction', back_populates='book')
+
 
 class Transaction(db.Model, SerializerMixin):
     __tablename__ = 'transactions'
 
     #serialize rules
     # serialize_rules = ('-book.transactions', 'user.transactions', '-book.reviews', '-user.reviews')
-    serialize_only = ('id', 'transaction_date', 'transaction_type', 'user_id', "book_id")
+    serialize_only = ('id', 'transaction_date', 'transaction_type', 'user_id',
+                      "book_id")
 
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime)
-    transaction_type = db.Column(Enum('purchase', 'sale', 'rent', name='transaction_type'), nullable=False)
+    transaction_type = db.Column(Enum('purchase',
+                                      'sale',
+                                      'rent',
+                                      name='transaction_type'),
+                                 nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"))
 
