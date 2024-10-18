@@ -35,6 +35,15 @@ class User(db.Model, SerializerMixin):
         "email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'",
         name='check_email_format'), )
 
+    # Relationships
+    books = db.relationship('Book',
+                            backref='user',
+                            cascade='all, delete-orpan')
+    reviews = db.relationship('Review',
+                              backref='user',
+                              cascade='all, delete-orpan')
+    transactions = db.relationship('Transaction', backref='user')
+
     # ORM level constraint for email column. Flexible and more robust
     @validates('email')
     def validate_email(self, _, email):
@@ -75,8 +84,14 @@ class Book(db.Model, SerializerMixin):
         Enum('available', 'rented', 'sold', name='book_status'),
         nullable=False,
         default='available')  # Book status, default is 'available'
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),
-                        nullable=False)  # Foreign key to the users table
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id'),
+                        nullable=False,
+                        ondelete='CASCADE')  # Foreign key to the users table
+
+    # Relationships
+    reviews = db.relationship('Review', backref='book')
+    transactions = db.relationship('Tranasction', backref='book')
 
     def __repr__(self):
         return f"<Book {self.id} : {self.title}>"
@@ -89,10 +104,14 @@ class Reviews(db.Model, SerializerMixin):
                    primary_key=True)  # Auto-incrementing ID for each review
     rating = db.Column(db.Integer, nullable=False)  # Rating between 1 and 5
     comment = db.Column(db.Text, nullable=True)  # Optional review comment
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),
-                        nullable=False)  # Foreign key to User model
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'),
-                        nullable=False)  # Foreign key to Book model
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id'),
+                        nullable=False,
+                        ondelete='CASCADE')  # Foreign key to User model
+    book_id = db.Column(db.Integer,
+                        db.ForeignKey('books.id'),
+                        nullable=False,
+                        ondelete='CASCADE')  # Foreign key to Book model
 
     # Database-level constraint to ensure rating is between 1 and 5
     __table_args__ = (db.CheckConstraint('rating >= 1 AND rating <= 5',
@@ -123,10 +142,14 @@ class Transactions(db.Model, SerializerMixin):
     transaction_type = db.Column(
         Enum('rent', 'buy', name='transaction_type'),
         nullable=False)  # Type of transaction (rent or buy)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),
-                        nullable=False)  # Foreign key to User model
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'),
-                        nullable=False)  # Foreign key to Book model
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id'),
+                        nullable=False,
+                        ondelete='CASCADE')  # Foreign key to User model
+    book_id = db.Column(db.Integer,
+                        db.ForeignKey('books.id'),
+                        nullable=False,
+                        ondelete='CASCADE')  # Foreign key to Book model
     returned = db.Column(
         db.Boolean, default=False, nullable=False
     )  # Status to track if the book is returned (applicable for rentals)

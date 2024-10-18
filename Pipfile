@@ -14,6 +14,7 @@ requests = "*"
 flask-jwt-extended = "*"
 sqlalchemy-serializer = "*"
 email-validator = "*"
+flask-bcrypt = "*"
 
 [dev-packages]
 
