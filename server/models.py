@@ -8,6 +8,18 @@ from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
+# Association table for many-to-many relationship between User and Role
+user_roles = db.Table(
+    'user_roles',
+    db.Column('user_id',
+              db.Integer,
+              db.ForeignKey('users.id', ondelete='CASCADE'),
+              primary_key=True),
+    db.Column('role_id',
+              db.Integer,
+              db.ForeignKey('roles.id', ondelete='CASCADE'),
+              primary_key=True))
+
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
@@ -44,6 +56,11 @@ class User(db.Model, SerializerMixin):
                               cascade='all, delete-orpan')
     transactions = db.relationship('Transaction', backref='user')
 
+    # Many-to-many relationship with Role, using backref to implicitly define the reverse relationship in Role
+    roles = db.relationship('Role',
+                            secondary=user_roles,
+                            backref=db.backref('users', lazy='dynamic'))
+
     # ORM level constraint for email column. Flexible and more robust
     @validates('email')
     def validate_email(self, _, email):
@@ -59,6 +76,14 @@ class User(db.Model, SerializerMixin):
         except EmailNotValidError as e:
             # Raise an exception for invalid emails
             raise ValueError(f'Invalid email address: {e}')
+
+    # Utility to add a role to a user
+    def add_role(self, role_name):
+        role = Role.query.filter_by(name=role_name)
+
+    # Check if the user has a specifc role
+    def has_role(self, role_name):
+        return any(role_name == role.name for role in self.roles)
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -164,3 +189,13 @@ class Transactions(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f"<Transaction {self.id} for Book {self.book_id}>"
+
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(Enum('seller', 'buyer'), nullable=False, unique=True)
+
+    def __repr__(self):
+        return f'<Role {self.name}>'
