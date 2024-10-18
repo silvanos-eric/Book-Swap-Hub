@@ -139,7 +139,7 @@ class Book(db.Model, SerializerMixin):
         nullable=False,
     )  # Foreign key to the users table
 
-    serialize_only = ('title', 'author', 'price', 'condition', 'status',
+    serialize_only = ('id', 'title', 'author', 'price', 'condition', 'status',
                       'user_id')
 
     # Relationships
@@ -147,6 +147,12 @@ class Book(db.Model, SerializerMixin):
                               backref='book',
                               cascade='all, delete-orphan')
     transactions = db.relationship('Transaction', backref='_book')
+
+    @validates('title', 'author', 'price')
+    def validate_not_empty(self, key, value):
+        if not value:
+            raise ValueError(f'{key.capitalize()} cannot be empty')
+        return value
 
     @classmethod
     def get_books_by_status(cls, status):
