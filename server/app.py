@@ -11,8 +11,6 @@ migrate = Migrate(app, db)
 
 api = Api(app)
 
-bcrypt = Bcrypt(app)
-
 
 class Index(Resource):
 
