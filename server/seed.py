@@ -104,6 +104,9 @@ def seed():
             customer = rc.choice(customers_with_transactions)
             transaction = rc.choice(customer.transactions)
 
+            if not transaction:
+                break
+
             # Create review for the selected transaction's book
             rating = rc.choice(range(1, 6))
             comment = fake.sentence(nb_words=10)

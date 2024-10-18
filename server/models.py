@@ -45,6 +45,8 @@ class User(db.Model, SerializerMixin):
         db.DateTime, default=func.now(),
         onupdate=func.now())  # Automatically updated on record modification
 
+    serialize_only = ('id', 'username', 'email', 'profile_picture')
+
     # Relationships
     books_for_sale = db.relationship('Book',
                                      backref='user',
@@ -137,6 +139,9 @@ class Book(db.Model, SerializerMixin):
         nullable=False,
     )  # Foreign key to the users table
 
+    serialize_only = ('title', 'author', 'price', 'condition', 'status',
+                      'user_id')
+
     # Relationships
     reviews = db.relationship('Review',
                               backref='book',
@@ -176,6 +181,9 @@ class Transaction(db.Model, SerializerMixin):
     returned = db.Column(
         db.Boolean, default=False, nullable=False
     )  # Status to track if the book is returned (applicable for rentals)
+
+    serialize_only = ('id', 'transaction_date', 'user_id', 'book_id',
+                      'returned')
 
     @property
     def book(self):
@@ -227,6 +235,8 @@ class Review(db.Model, SerializerMixin):
     # Database-level constraint to ensure rating is between 1 and 5
     __table_args__ = (db.CheckConstraint('rating >= 1 AND rating <= 5',
                                          name='check_rating_range'), )
+
+    serialize_only = ('id', 'rating', 'comment', 'user_id', 'book_id')
 
     # ORM-level validation for rating
     @validates('rating')
