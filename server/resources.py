@@ -1,6 +1,6 @@
 from flask import request, session
 from flask_restful import Resource
-from models import Book, User, db
+from models import Book, Review, User, db
 
 
 class Books(Resource):
@@ -86,3 +86,13 @@ class BookByID(Resource):
             # TODO: Complete logic after implementing auth routes
         except:
             return {'error': 'An unkown error occurred'}, 500
+
+
+class Reviews(Resource):
+
+    def get(self):
+        review_list = Review.query.all()
+
+        review_dict_list = [review.to_dict() for review in review_list]
+
+        return review_dict_list
