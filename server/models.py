@@ -210,5 +210,15 @@ class Transactions(db.Model, SerializerMixin):
                 "Invalid transaction type. Must be either 'rent' or 'buy'.")
         return transaction_type
 
+    # Validation to prevent renting or buying a non-available book
+    @validates('book_id')
+    def validate_book_status(self, _, book_id):
+        book = Book.query.get(book_id)
+        if book.status != 'available':
+            raise ValueError(
+                f"Book '{book.title}' is currently {book.status} and cannot be rented or bought."
+            )
+        return book_id
+
     def __repr__(self):
         return f"<Transaction {self.id} for Book {self.book_id}>"
