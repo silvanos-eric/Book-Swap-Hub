@@ -34,8 +34,7 @@ class User(db.Model, SerializerMixin):
         db.String(255), nullable=False,
         unique=True)  # Email with max length of 255 characters, must be unique
     _password_hash = db.Column(
-        db.String(255),
-        nullable=False)  # Password hash with max length of 255 characters
+        db.String(255), )  # Password hash with max length of 255 characters
     profile_picture = db.Column(db.Text)  # Profile picture (optional)
     created_at = db.Column(db.DateTime, default=func.now(
     ))  # Use func.now() to set the current timestamp for creation
@@ -176,7 +175,7 @@ class Role(db.Model):
         return f'<Role {self.name}>'
 
 
-class Transactions(db.Model, SerializerMixin):
+class Transaction(db.Model, SerializerMixin):
     __tablename__ = 'transactions'
 
     id = db.Column(
