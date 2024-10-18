@@ -1,8 +1,6 @@
 from sqlalchemy import Enum
 from sqlalchemy_serializer import SerializerMixin
 
-from . import db
-
 
 class Book(db.Model, SerializerMixin):
     __tablename__ = 'books'

@@ -2,8 +2,6 @@ from sqlalchemy import Enum, func
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
-from . import db
-
 
 class Transactions(db.Model, SerializerMixin):
     __tablename__ = 'transactions'

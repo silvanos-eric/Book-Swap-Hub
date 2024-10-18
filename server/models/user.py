@@ -3,8 +3,6 @@ from sqlalchemy.orm import validates
 from sqlalchemy.sql import func
 from sqlalchemy_serializer import SerializerMixin
 
-from . import db, user_roles
-
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
@@ -45,6 +43,8 @@ class User(db.Model, SerializerMixin):
     roles = db.relationship('Role',
                             secondary=user_roles,
                             backref=db.backref('users', lazy='dynamic'))
+
+    # Serialization config
 
     # ORM level constraint for email column. Flexible and more robust
     @validates('email')

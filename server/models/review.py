@@ -1,10 +1,8 @@
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
-from . import db
 
-
-class Reviews(db.Model, SerializerMixin):
+class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
 
     id = db.Column(db.Integer,

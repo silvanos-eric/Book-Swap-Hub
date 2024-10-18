@@ -1,4 +1,3 @@
-from models import db
 from sqlalchemy import Enum
 
 

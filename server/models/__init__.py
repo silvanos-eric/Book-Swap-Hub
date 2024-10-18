@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 from .book import Book
-from .review import Reviews
+from .review import Review
 from .role import Role
 from .transaction import Transactions
 from .user import User
