@@ -1,96 +1,56 @@
-from faker import Faker
 import random
+import random as rc
 from datetime import datetime
-from models import db, User, Book, Review, Transaction 
+
 from app import app
+from faker import Faker
+from models import Book, Review, Role, Transaction, User, db, user_roles
 
-# Initialize Faker
-fake = Faker()
 
-with app.app_context():  
-    # Delete existing data
-    try:
-        print("Deleting existing data...")
-        Review.query.delete()
-        Transaction.query.delete()
-        Book.query.delete()
-        User.query.delete()
-        db.session.commit()  # Commit deletions
-        print("Deleted all records.")
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error while deleting records: {e}")
+def seed():
+    # Initialize Faker
+    fake = Faker()
 
-    # The seed function
-    def seed_database():
-        try:
-            # Generate Users
-            users = []
-            print("Creating users...")
-            for _ in range(10):  # create 10 users
-                user = User(
-                    username=fake.user_name(),
-                    email=fake.email(),
-                    password=fake.password(),
-                    profile_picture=fake.image_url()
-                )
-                users.append(user)
-                db.session.add(user)
-            db.session.commit()  # Commit all users
-            print(f"Created {len(users)} users.")
-            
-            # Generate Books
-            books = []
-            print("Creating books...")
-            for _ in range(10):  # create 10 books
-                book = Book(
-                    title=fake.sentence(nb_words=3),
-                    author=fake.name(),
-                    price=random.randint(10, 100),  # price between 10 and 100
-                    condition=random.choice(['new', 'used']),  # True for new, False for used
-                    status=random.choice(["rent", "sale"]),
-                    user_id=random.choice([user.id for user in users])  # random user owns the book
-                )
-                books.append(book)
-                db.session.add(book)
-            db.session.commit()  # Commit all books
-            print(f"Created {len(books)} books.")
+    # Reset database
+    db.session.query(user_roles).delete()
+    Role.query.delete()
+    User.query.delete()
+    Book.query.delete()
+    Transaction.query.delete()
+    Review.query.delete()
 
-            # Generate Reviews
-            reviews = []
-            print("Creating reviews...")
-            for _ in range(20):  # create 20 reviews
-                review = Review(
-                    rating=random.randint(1, 5),  # rating between 1 and 5
-                    comment=fake.text(),
-                    user_id=random.choice([user.id for user in users]),
-                    book_id=random.choice([book.id for book in books])
-                )
-                reviews.append(review)
-                db.session.add(review)
-            db.session.commit()  # Commit all reviews
-            print(f"Created {len(reviews)} reviews.")
+    # Number of records
+    no_of_users = 5
+    no_of_products = 20
+    no_of_transactions = 10
+    no_of_reviews = 8
 
-            # Generate Transactions
-            transactions = []
-            print("Creating transactions...")
-            for _ in range(10):  # create 10 transactions
-                transaction = Transaction(
-                    transaction_date=fake.date_time_this_year(),
-                    transaction_type=random.choice(["purchase", "sale", "rent"]),
-                    user_id=random.choice([user.id for user in users]),
-                    book_id=random.choice([book.id for book in books])
-                )
-                transactions.append(transaction)
-                db.session.add(transaction)
-            db.session.commit()  # Commit all transactions
-            print(f"Created {len(transactions)} transactions.")
-            
-            print("Successfully updated bookshub database.")
-        
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error while seeding database: {e}")
+    # Creating roles
+    print('Creating roles...')
+    role_name_list = ['seller', 'buyer']
+    for role in role_name_list:
+        new_role = Role(name=role)
+        db.session.add(new_role)
+        db.session.commit()
 
-    # Call seed function
-    seed_database()
+    # Creating users
+    role_list = Role.query.all()
+    print(f'Creating {no_of_users} users...')
+    for _ in range(no_of_users):
+        username = fake.unique.user_name()
+        email = f'{username}@student.moringaschool.com'
+        profile_picture = fake.image_url()
+        role = rc.choice(role_list)
+
+        new_user = User(username=username,
+                        email=email,
+                        profile_picture=profile_picture)
+        new_user.roles.append(role)
+        db.session.add(new_user)
+        db.session.commit()
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        seed()
+        print('Done.')
