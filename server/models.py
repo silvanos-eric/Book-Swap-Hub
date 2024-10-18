@@ -157,11 +157,6 @@ class User(db.Model, SerializerMixin):
         db.DateTime, default=func.now(),
         onupdate=func.now())  # Automatically updated on record modification
 
-    # Basic database constraint for email column
-    __table_args__ = (db.CheckConstraint(
-        r"email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'",
-        name='check_email_format'), )
-
     # Relationships
     books = db.relationship('Book',
                             backref='user',
