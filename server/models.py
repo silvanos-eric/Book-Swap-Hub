@@ -124,7 +124,7 @@ class Book(db.Model, SerializerMixin):
 
     # Relationships
     reviews = db.relationship('Review', backref='book')
-    transactions = db.relationship('Tranasction', backref='book')
+    transactions = db.relationship('Transaction', backref='book')
 
     def __repr__(self):
         return f"<Book {self.id} : {self.title}>"
