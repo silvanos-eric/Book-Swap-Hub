@@ -3,6 +3,22 @@ from flask_restful import Resource
 from models import Book, Review, User, db
 
 
+def validate_login():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        raise ValueError('Authentication Required')
+
+    print(user_id)
+
+    user = db.session.get(User, user_id)
+
+    if not user:
+        raise ValueError('Authentication Required')
+
+    return user_id
+
+
 class Books(Resource):
 
     def get(self):
@@ -114,17 +130,28 @@ class Reviews(Resource):
             return {'error', 'An unknown error occurred'}, 500
 
 
-def validate_login():
-    user_id = session.get('user_id')
+class ReviewByID(Resource):
 
-    if not user_id:
-        raise ValueError('Authentication Required')
+    def get(self, id):
+        review = db.session.get(Review, id)
 
-    print(user_id)
+        return review.to_dict()
 
-    user = db.session.get(User, user_id)
+    def patch(self, id):
+        try:
+            user_id = validate_login()
 
-    if not user:
-        raise ValueError('Authentication Required')
+            data = request.json
 
-    return user_id
+            review = db.session.get(Review, id)
+
+            for attr in data:
+                setattr(review, attr, data[attr])
+
+            db.session.add(review)
+            db.session.commit()
+        except (KeyError, ValueError) as e:
+            if isinstance(e, KeyError):
+                return {'error': f'Missing required field: {e}'}
+            if isinstance(e, ValueError) and 'Auth' in str(e):
+                return {'error': str(e)}, 401
