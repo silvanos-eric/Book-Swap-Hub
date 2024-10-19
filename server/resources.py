@@ -316,3 +316,16 @@ class ClearSession(Resource):
         session.pop('user_id')
 
         return {}, 200
+
+
+class Logout(Resource):
+
+    def delete(self):
+        try:
+            validate_login()
+            session.pop('user_id', None)
+        except Exception as e:
+            error = handleException(e)
+            return error
+
+        return {}
