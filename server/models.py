@@ -7,6 +7,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
+from utils import password_schema
 
 db = SQLAlchemy()
 
@@ -91,7 +92,11 @@ class User(db.Model, SerializerMixin):
         raise AttributeError('Private field, _password is not accessible')
 
     @password_hash.setter
-    def password_has(self, password):
+    def password_hash(self, password):
+        if not password_schema.validate(password):
+            raise ValueError(
+                'Password must be at least 8 characters long, and contain no spaces'
+            )
         self._password_hash = bcrypt.generate_password_hash(password).decode(
             'utf-8')
 
@@ -108,6 +113,12 @@ class User(db.Model, SerializerMixin):
                 f'Invalid role. Role must be one of: {", ".join(VALID_ROLES)}')
         return cls.query.join(user_roles).join(Role).filter(
             Role.name == role_name).all()
+
+    @validates('username')
+    def validate_username(self, key, value):
+        if not value:
+            raise ValueError(f'{key.capitalize()} must be non-empty.')
+        return value
 
     def __repr__(self):
         return f"<User {self.username}>"

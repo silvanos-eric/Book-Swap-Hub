@@ -21,9 +21,9 @@ def seed():
     db.session.commit()
 
     # Number of records
-    no_of_users = 5
-    no_of_books = 30
-    no_of_transactions = 10
+    no_of_users = 20
+    no_of_books = 100
+    no_of_transactions = 15
     no_of_reviews = 5
 
     try:
