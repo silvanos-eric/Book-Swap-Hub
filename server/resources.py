@@ -4,7 +4,7 @@ from models import Book, Review, Role, User, db, user_roles
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 
-authError = 'Authentication Required', 401
+authError = 'Authentication Required.', 401
 roleError = 'Bad Request: Invalid value for "role". Expected "seller" or "customer".', 400
 
 
@@ -12,7 +12,7 @@ def validate_login():
     user_id = session.get('user_id')
 
     if not user_id:
-        raise ValueError('Authentication Required')
+        raise ValueError('Authentication Required.')
 
     print(user_id)
 
@@ -288,6 +288,23 @@ class SignUp(Resource):
 
             return new_user.to_dict(), 201
 
+        except Exception as e:
+            error = handleException(e)
+            return error
+
+
+class CheckSession(Resource):
+
+    def get(self):
+        try:
+            user_id = validate_login()
+
+            user = db.session.get(User, user_id)
+
+            if not user:
+                return authError
+
+            return user.to_dict()
         except Exception as e:
             error = handleException(e)
             return error
