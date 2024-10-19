@@ -1,9 +1,11 @@
 from flask import request, session
 from flask_restful import Resource
 from models import Book, Review, Role, User, db, user_roles
+from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import BadRequest
 
 authError = 'Authentication Required', 401
-roleError = 'Invalid role. Role must be either: seller or customer', 400
+roleError = 'Bad Request: Invalid value for "role". Expected "seller" or "customer".', 400
 
 
 def validate_login():
@@ -17,17 +19,38 @@ def validate_login():
     user = db.session.get(User, user_id)
 
     if not user:
-        raise ValueError('Authentication Required')
+        raise ValueError('Authentication Required.')
 
     return user_id
 
 
-def handleErrors(e):
+def handleException(e):
     if isinstance(e, ValueError) and 'Auth' in str(e):
-        return {'error': str(e)}, 401
+        return {'error': 'Bad Request', 'message': str(e)}, 401
+    if isinstance(e, ValueError):
+        return {'error': 'Bad Request', 'message': str(e)}, 400
     if isinstance(e, KeyError):
-        return {'error': f'Missing required field: {e}'}, 400
-    print(e)
+        return {
+            'error': 'Bad Request',
+            'message': f'Missing required field: {e}.'
+        }, 400
+    if isinstance(e, BadRequest):
+        return {
+            'error':
+            'Bad Request',
+            'message':
+            'Malformed JSON body. Please ensure the properties provided are well formatted.'
+        }, 400
+    if isinstance(e, IntegrityError) and 'UNIQUE' in str(e):
+        return {
+            "error":
+            "Account creation failed",
+            "message":
+            "An account with these credentials may already exist. Please try logging in or use the 'Forgot Password' option if necessary."
+        }, 400
+
+    print(f'***{type(e)}***')
+    print(f'***{(e)}***')
     return {'error': 'An uknown error occurred'}, 500
 
 
@@ -42,20 +65,20 @@ def createUser(data):
         raise ValueError('Passwords do not match')
 
     new_user = User(username=username,
-                    password=password,
                     email=email,
                     profile_picture=profile_picture)
+    new_user.password_hash = password
 
     role_name = data.get('role')
 
-    if not role_name:
-        role = Role.query.filter(name='customer')
+    if role_name is None:
+        role_name = 'customer'
 
-    role = Role.query.filter_by(name=role_name)
-    if not role:
-        raise ValueError('Invalid role. Role must be one of: seller ,customer')
+    role = Role.query.filter_by(name=role_name).first()
 
     new_user.roles.append(role)
+
+    return new_user
 
 
 class Books(Resource):
@@ -89,7 +112,7 @@ class Books(Resource):
 
             # TODO: Complete logic after building auth routes
         except (KeyError, ValueError) as e:
-            error = handleErrors(e)
+            error = handleException(e)
             return error
 
 
@@ -105,7 +128,8 @@ class BookByID(Resource):
             book_dict = book.to_dict()
             return book_dict
         except Exception as e:
-            error = handleErrors(e)
+            error = handleException(e)
+            return error
 
     def patch(self, id):
         try:
@@ -122,7 +146,7 @@ class BookByID(Resource):
 
             # TODO: Complete logic after implementing auth routes
         except Exception as e:
-            error = handleErrors(e)
+            error = handleException(e)
             return error
 
 
@@ -154,7 +178,7 @@ class Reviews(Resource):
 
             return new_review.to_dict(), 201
         except Exception as e:
-            errors = handleErrors(e)
+            errors = handleException(e)
             return errors
 
 
@@ -181,7 +205,7 @@ class ReviewByID(Resource):
 
             #TODO: Complete logic after implementing auth routes
         except Exception as e:
-            error = handleErrors(e)
+            error = handleException(e)
             return error
 
 
@@ -207,7 +231,7 @@ class Users(Resource):
 
             return new_user.to_dict, 201
         except Exception as e:
-            error = handleErrors(e)
+            error = handleException(e)
             return error
 
 
@@ -224,7 +248,7 @@ class UserByID(Resource):
 
             return user.to_dict()
         except Exception as e:
-            error = handleErrors(e)
+            error = handleException(e)
             return error
 
     def patch(self, id):
@@ -245,5 +269,25 @@ class UserByID(Resource):
 
             return user.to_dict()
         except Exception as e:
-            error = handleErrors(e)
+            error = handleException(e)
+            return error
+
+
+class SignUp(Resource):
+
+    def post(self):
+        try:
+            data = request.json
+
+            new_user = createUser(data)
+
+            db.session.add(new_user)
+            db.session.commit()
+
+            session['user_id'] = new_user.id
+
+            return new_user.to_dict(), 201
+
+        except Exception as e:
+            error = handleException(e)
             return error
