@@ -210,7 +210,7 @@ class Transaction(db.Model, SerializerMixin):
     def book(self, value):
         if value.status in ['sold', 'rented']:
             raise ValueError(
-                f"Book '{value.title}' is already '{value.status}' and cannot be added to the transaction."
+                f"Book with name: '{value.title}', is already '{value.status}' and cannot be added to the transaction."
             )
         if self.transaction_type == 'buy':
             value.status = 'sold'
