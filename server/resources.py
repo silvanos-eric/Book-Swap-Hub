@@ -1,6 +1,6 @@
 from flask import request, session
 from flask_restful import Resource
-from models import Book, Review, Role, User, db, user_roles
+from models import Book, Review, Role, Transaction, User, db
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 
@@ -28,7 +28,7 @@ def handleException(e):
     if isinstance(e, ValueError) and 'Auth' in str(e):
         return {'error': 'Bad Request', 'message': str(e)}, 401
     if isinstance(e, ValueError) and 'not found' in str(e).lower():
-        return {'error': 'Bad Request', 'message': str(e)}
+        return {'error': 'Bad Request', 'message': str(e)}, 404
     if isinstance(e, ValueError):
         return {'error': 'Bad Request', 'message': str(e)}, 400
     if isinstance(e, KeyError):
@@ -365,6 +365,51 @@ class Login(Resource):
             session['user_id'] = user.id
 
             return user.to_dict()
+        except Exception as e:
+            error = handleException(e)
+            return error
+
+
+class Transactions(Resource):
+
+    def get(self):
+        try:
+            validate_login()
+
+            transaction_list = Transaction.query.all()
+
+            transaction_dict_list = [
+                transaction.to_dict() for transaction in transaction_list
+            ]
+
+            return transaction_dict_list
+        except Exception as e:
+            error = handleException(e)
+            return error
+
+    def post(self):
+        try:
+            user_id = validate_login()
+
+            data = request.json
+
+            transaction_type = data['transaction_type']
+            book_id = data['book_id']
+
+            book = db.session.get(Book, book_id)
+
+            if not book:
+                raise ValueError(f'Book with ID {book_id} not found.')
+
+            new_transaction = Transaction(transaction_type=transaction_type,
+                                          user_id=user_id)
+
+            new_transaction.book = book
+
+            db.session.add(new_transaction)
+            db.session.commit()
+
+            return new_transaction.to_dict(), 201
         except Exception as e:
             error = handleException(e)
             return error

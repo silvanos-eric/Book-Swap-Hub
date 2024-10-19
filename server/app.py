@@ -3,7 +3,8 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from models import db
 from resources import (BookByID, Books, CheckSession, ClearSession, Login,
-                       Logout, ReviewByID, Reviews, SignUp, UserByID, Users)
+                       Logout, ReviewByID, Reviews, SignUp, Transactions,
+                       UserByID, Users)
 
 # Initialize extensions
 db.init_app(app)
@@ -24,6 +25,7 @@ api.add_resource(Login, '/login')
 api.add_resource(CheckSession, '/check_session')
 api.add_resource(ClearSession, '/clear_session')
 api.add_resource(Logout, '/logout')
+api.add_resource(Transactions, '/transactions')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
