@@ -2,8 +2,8 @@ from config import app
 from flask_migrate import Migrate
 from flask_restful import Api
 from models import db
-from resources import (BookByID, Books, CheckSession, ClearSession, Logout,
-                       ReviewByID, Reviews, SignUp, UserByID, Users)
+from resources import (BookByID, Books, CheckSession, ClearSession, Login,
+                       Logout, ReviewByID, Reviews, SignUp, UserByID, Users)
 
 # Initialize extensions
 db.init_app(app)
@@ -20,6 +20,7 @@ api.add_resource(ReviewByID, '/reviews/<int:id>')
 api.add_resource(Users, '/users')
 api.add_resource(UserByID, '/users/<int:id>')
 api.add_resource(SignUp, '/signup')
+api.add_resource(Login, '/login')
 api.add_resource(CheckSession, '/check_session')
 api.add_resource(ClearSession, '/clear_session')
 api.add_resource(Logout, '/logout')

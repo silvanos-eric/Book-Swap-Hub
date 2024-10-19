@@ -4,8 +4,8 @@ from models import Book, Review, Role, User, db, user_roles
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 
-authError = 'Authentication Required.', 401
-roleError = 'Bad Request: Invalid value for "role". Expected "seller" or "customer".', 400
+authError = 'Authentication Required.'
+credentialsError = "The email/username or password is incorrect. Please check your credentials or sign up if you don't have an account."
 
 
 def validate_login():
@@ -27,6 +27,8 @@ def validate_login():
 def handleException(e):
     if isinstance(e, ValueError) and 'Auth' in str(e):
         return {'error': 'Bad Request', 'message': str(e)}, 401
+    if isinstance(e, ValueError) and 'not found' in str(e).lower():
+        return {'error': 'Bad Request', 'message': str(e)}
     if isinstance(e, ValueError):
         return {'error': 'Bad Request', 'message': str(e)}, 400
     if isinstance(e, KeyError):
@@ -123,7 +125,7 @@ class BookByID(Resource):
 
         try:
             if not book:
-                return {'error': f'Book with ID {id} not found'}, 404
+                raise ValueError(f'Book with ID {id} not found')
 
             book_dict = book.to_dict()
             return book_dict
@@ -244,7 +246,7 @@ class UserByID(Resource):
             user = db.session.query(User, id)
 
             if not user:
-                return authError
+                raise ValueError(authError)
 
             return user.to_dict()
         except Exception as e:
@@ -258,7 +260,7 @@ class UserByID(Resource):
             user = db.session.get(User, id)
 
             if not user:
-                return authError
+                raise ValueError(authError)
 
             data = request.json
             for attr in data:
@@ -302,7 +304,7 @@ class CheckSession(Resource):
             user = db.session.get(User, user_id)
 
             if not user:
-                return authError
+                raise ValueError(authError)
 
             return user.to_dict()
         except Exception as e:
@@ -329,3 +331,40 @@ class Logout(Resource):
             return error
 
         return {}
+
+
+class Login(Resource):
+
+    def post(self):
+        try:
+            data = request.json
+
+            email = data.get('email')
+            username = data.get('username')
+
+            if not email and not username:
+                raise ValueError('Please provide a username or email.')
+
+            password = data['password']
+
+            # Check is user exists
+            user = None
+            if email:
+                user = User.query.filter_by(email=email).first()
+            if username:
+                user = User.query.filter_by(username=username).first()
+
+            if not user:
+                raise ValueError(credentialsError)
+
+            # Check the password
+            if not user.authenticate(password):
+                raise ValueError(credentialsError)
+
+            # Log in the user
+            session['user_id'] = user.id
+
+            return user.to_dict()
+        except Exception as e:
+            error = handleException(e)
+            return error
