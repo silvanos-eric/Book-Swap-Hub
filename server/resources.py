@@ -26,9 +26,9 @@ def validate_login():
 
 def handleException(e):
     if isinstance(e, ValueError) and 'Auth' in str(e):
-        return {'error': 'Bad Request', 'message': str(e)}, 401
+        return {'error': 'Unauthorized', 'message': str(e)}, 401
     if isinstance(e, ValueError) and 'not found' in str(e).lower():
-        return {'error': 'Bad Request', 'message': str(e)}, 404
+        return {'error': 'Not Found', 'message': str(e)}, 404
     if isinstance(e, ValueError):
         return {'error': 'Bad Request', 'message': str(e)}, 400
     if isinstance(e, KeyError):
@@ -38,22 +38,18 @@ def handleException(e):
         }, 400
     if isinstance(e, BadRequest):
         return {
-            'error':
-            'Bad Request',
-            'message':
-            'Malformed JSON body. Please ensure the properties provided are well formatted.'
+            'error': 'Bad Request',
+            'message': 'Malformed JSON body. Please ensure the properties provided are well formatted.'
         }, 400
     if isinstance(e, IntegrityError) and 'UNIQUE' in str(e):
         return {
-            "error":
-            "Account creation failed",
-            "message":
-            "An account with these credentials may already exist. Please try logging in or use the 'Forgot Password' option if necessary."
+            "error": "Account creation failed",
+            "message": "An account with these credentials may already exist. Please try logging in or use the 'Forgot Password' option if necessary."
         }, 400
 
     print(f'***{type(e)}***')
     print(f'***{(e)}***')
-    return {'error': 'An uknown error occurred'}, 500
+    return {'error': 'An unknown error occurred'}, 500
 
 
 def createUser(data):
@@ -110,7 +106,7 @@ class Books(Resource):
             db.session.add(new_book)
             db.session.commit()
 
-            return new_book.to_dict, 201
+            return new_book.to_dict(), 201
 
             # TODO: Complete logic after building auth routes
         except (KeyError, ValueError) as e:
@@ -122,13 +118,11 @@ class BookByID(Resource):
 
     def get(self, id):
         book = db.session.get(Book, id)
-
         try:
             if not book:
                 raise ValueError(f'Book with ID {id} not found')
 
-            book_dict = book.to_dict()
-            return book_dict
+            return book.to_dict()
         except Exception as e:
             error = handleException(e)
             return error
@@ -156,7 +150,6 @@ class Reviews(Resource):
 
     def get(self):
         review_list = Review.query.all()
-
         review_dict_list = [review.to_dict() for review in review_list]
 
         return review_dict_list
@@ -189,15 +182,20 @@ class ReviewByID(Resource):
     def get(self, id):
         review = db.session.get(Review, id)
 
-        return review.to_dict()
+        if not review:
+                raise ValueError(f'Review with ID {id} not found')
+
+        return review.to_dict(), 200
 
     def patch(self, id):
         try:
             validate_login()
-
             data = request.json
 
             review = db.session.get(Review, id)
+
+            if not review:
+                raise ValueError(f'Review with ID {id} not found')
 
             for attr in data:
                 setattr(review, attr, data[attr])
@@ -205,6 +203,7 @@ class ReviewByID(Resource):
             db.session.add(review)
             db.session.commit()
 
+            return review.to_dict(), 200
             #TODO: Complete logic after implementing auth routes
         except Exception as e:
             error = handleException(e)
@@ -231,7 +230,7 @@ class Users(Resource):
 
             session['user_id'] = new_user.id
 
-            return new_user.to_dict, 201
+            return new_user.to_dict(), 201
         except Exception as e:
             error = handleException(e)
             return error
@@ -242,13 +241,12 @@ class UserByID(Resource):
     def get(self, id):
         try:
             validate_login()
-
             user = db.session.query(User, id)
 
             if not user:
                 raise ValueError(authError)
 
-            return user.to_dict()
+            return user.to_dict(), 200
         except Exception as e:
             error = handleException(e)
             return error
@@ -269,7 +267,7 @@ class UserByID(Resource):
             db.session.add(user)
             db.session.commit()
 
-            return user.to_dict()
+            return user.to_dict(), 200
         except Exception as e:
             error = handleException(e)
             return error
@@ -316,7 +314,6 @@ class ClearSession(Resource):
 
     def delete(self):
         session.pop('user_id')
-
         return {}, 200
 
 
@@ -330,7 +327,7 @@ class Logout(Resource):
             error = handleException(e)
             return error
 
-        return {}
+        return {}, 200
 
 
 class Login(Resource):
@@ -368,8 +365,7 @@ class Login(Resource):
         except Exception as e:
             error = handleException(e)
             return error
-
-
+        
 class Transactions(Resource):
 
     def get(self):
@@ -413,3 +409,4 @@ class Transactions(Resource):
         except Exception as e:
             error = handleException(e)
             return error
+        
