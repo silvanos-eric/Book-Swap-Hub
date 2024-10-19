@@ -308,3 +308,11 @@ class CheckSession(Resource):
         except Exception as e:
             error = handleException(e)
             return error
+
+
+class ClearSession(Resource):
+
+    def delete(self):
+        session.pop('user_id')
+
+        return {}, 200
