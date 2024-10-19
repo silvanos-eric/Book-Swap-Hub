@@ -1,6 +1,9 @@
 from flask import request, session
 from flask_restful import Resource
-from models import Book, Review, User, db
+from models import Book, Review, Role, User, db, user_roles
+
+authError = 'Authentication Required', 401
+roleError = 'Invalid role. Role must be either: seller or customer', 400
 
 
 def validate_login():
@@ -17,6 +20,42 @@ def validate_login():
         raise ValueError('Authentication Required')
 
     return user_id
+
+
+def handleErrors(e):
+    if isinstance(e, ValueError) and 'Auth' in str(e):
+        return {'error': str(e)}, 401
+    if isinstance(e, KeyError):
+        return {'error': f'Missing required field: {e}'}, 400
+    print(e)
+    return {'error': 'An uknown error occurred'}, 500
+
+
+def createUser(data):
+    username = data['username']
+    email = data['email']
+    profile_picture = data.get('profile_picture')
+    password = data['password']
+    password_confirmation = data['password_confirmation']
+
+    if password != password_confirmation:
+        raise ValueError('Passwords do not match')
+
+    new_user = User(username=username,
+                    password=password,
+                    email=email,
+                    profile_picture=profile_picture)
+
+    role_name = data.get('role')
+
+    if not role_name:
+        role = Role.query.filter(name='customer')
+
+    role = Role.query.filter_by(name=role_name)
+    if not role:
+        raise ValueError('Invalid role. Role must be one of: seller ,customer')
+
+    new_user.roles.append(role)
 
 
 class Books(Resource):
@@ -50,13 +89,8 @@ class Books(Resource):
 
             # TODO: Complete logic after building auth routes
         except (KeyError, ValueError) as e:
-            if isinstance(e, KeyError) and 'Auth' in str(e):
-                return {'error': str(e)}, 401
-
-            if isinstance(e, KeyError):
-                error = f'Missing required field: {e}'
-
-            return {'error': error}, 400
+            error = handleErrors(e)
+            return error
 
 
 class BookByID(Resource):
@@ -70,8 +104,8 @@ class BookByID(Resource):
 
             book_dict = book.to_dict()
             return book_dict
-        except:
-            return {'error': 'An unkown error occurred'}, 500
+        except Exception as e:
+            error = handleErrors(e)
 
     def patch(self, id):
         try:
@@ -87,11 +121,9 @@ class BookByID(Resource):
             db.session.commit(book)
 
             # TODO: Complete logic after implementing auth routes
-        except (ValueError) as e:
-            if isinstance(e, ValueError) and 'Auth' in str(e):
-                return {'error': str(e)}, 401
-        except:
-            return {'error': 'An unkown error occurred'}, 500
+        except Exception as e:
+            error = handleErrors(e)
+            return error
 
 
 class Reviews(Resource):
@@ -121,13 +153,9 @@ class Reviews(Resource):
             db.session.commit()
 
             return new_review.to_dict(), 201
-        except (KeyError, ValueError) as e:
-            if isinstance(e, KeyError):
-                return {'error': f'Missing required field: {e}'}
-            if isinstance(e, ValueError) and 'Auth' in str(e):
-                return {'error': str(e)}, 401
-        except:
-            return {'error', 'An unknown error occurred'}, 500
+        except Exception as e:
+            errors = handleErrors(e)
+            return errors
 
 
 class ReviewByID(Resource):
@@ -139,7 +167,7 @@ class ReviewByID(Resource):
 
     def patch(self, id):
         try:
-            user_id = validate_login()
+            validate_login()
 
             data = request.json
 
@@ -150,8 +178,72 @@ class ReviewByID(Resource):
 
             db.session.add(review)
             db.session.commit()
-        except (KeyError, ValueError) as e:
-            if isinstance(e, KeyError):
-                return {'error': f'Missing required field: {e}'}
-            if isinstance(e, ValueError) and 'Auth' in str(e):
-                return {'error': str(e)}, 401
+
+            #TODO: Complete logic after implementing auth routes
+        except Exception as e:
+            error = handleErrors(e)
+            return error
+
+
+class Users(Resource):
+
+    def get(self):
+        user_list = User.query.all()
+        user_dict_list = [user.to_dict() for user in user_list]
+
+        return user_dict_list
+
+    def post(self):
+        try:
+            validate_login()
+            data = request.json
+
+            new_user = createUser(data)
+
+            db.session.add(new_user)
+            db.session.commit()
+
+            session['user_id'] = new_user.id
+
+            return new_user.to_dict, 201
+        except Exception as e:
+            error = handleErrors(e)
+            return error
+
+
+class UserByID(Resource):
+
+    def get(self, id):
+        try:
+            validate_login()
+
+            user = db.session.query(User, id)
+
+            if not user:
+                return authError
+
+            return user.to_dict()
+        except Exception as e:
+            error = handleErrors(e)
+            return error
+
+    def patch(self, id):
+        try:
+            validate_login()
+
+            user = db.session.get(User, id)
+
+            if not user:
+                return authError
+
+            data = request.json
+            for attr in data:
+                setattr(user, attr, data[attr])
+
+            db.session.add(user)
+            db.session.commit()
+
+            return user.to_dict()
+        except Exception as e:
+            error = handleErrors(e)
+            return error
