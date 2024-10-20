@@ -9,8 +9,9 @@ import {
   Signup,
   Login,
   Contact,
-  BooksForSale,
-} from "@pages";
+  VendorBooks,
+  CustomerBooks,
+} from "./pages";
 
 const routes = [
   {
@@ -51,8 +52,12 @@ const routes = [
         element: <Contact />,
       },
       {
-        path: "books-for-sale",
-        element: <BooksForSale />,
+        path: "vendor-books",
+        element: <VendorBooks />,
+      },
+      {
+        path: "customer-books",
+        element: <CustomerBooks />,
       },
     ],
   },
