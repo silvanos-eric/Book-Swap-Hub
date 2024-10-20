@@ -11,7 +11,7 @@ from utils import password_schema
 
 db = SQLAlchemy()
 
-VALID_ROLES = ['seller', 'customer']
+VALID_ROLES = ['vendor', 'customer']
 
 # Association table for many-to-many relationship between User and Role
 user_roles = db.Table(
@@ -272,7 +272,7 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(Enum('seller', 'customer', name='role_type'),
+    name = db.Column(Enum('vendor', 'customer', name='role_type'),
                      nullable=False,
                      unique=True)
 

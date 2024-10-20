@@ -29,7 +29,7 @@ def seed():
     try:
         # Creating roles
         print('Creating roles...')
-        role_name_list = ['seller', 'customer']
+        role_name_list = ['vendor', 'customer']
         roles = []
         for role_name in role_name_list:
             role = Role(name=role_name)
@@ -54,8 +54,8 @@ def seed():
 
         # Creating Books
         print(f'Creating {no_of_books} books...')
-        sellers = User.get_users_by_role(
-            'seller')  # Fetch sellers after users are created
+        vendors = User.get_users_by_role(
+            'vendor')  # Fetch vendors after users are created
         for _ in range(no_of_books):
             title = fake.sentence(nb_words=5)
             author = fake.name()
@@ -68,7 +68,7 @@ def seed():
                 price=price,
                 condition=condition,
                 status='available',
-                user=rc.choice(sellers)  # Assign random seller as the owner
+                user=rc.choice(vendors)  # Assign random vendor as the owner
             )
             db.session.add(new_book)
         db.session.commit()

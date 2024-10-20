@@ -14,12 +14,12 @@
 ## Overview
 The Book Swap Hub App is a full-stack web application that allows users to buy, sell, rent, and review books. It includes functionality for user authentication, book listings, leaving book reviews, and transaction management. The front end is built using React and styled with Bootstrap for a responsive design, while the backend is powered by Flask, handling API requests, database interactions, and authentication.
 
-Users can sign up either as sellers or customers. Sellers can list books for sale or rent, and customers can browse books, make purchases, and leave reviews.
+Users can sign up either as vendors or customers. vendors can list books for sale or rent, and customers can browse books, make purchases, and leave reviews.
 
 ## Features
-- **User Roles**: Two roles - sellers (who can list books) and customers (who can buy or rent books).
+- **User Roles**: Two roles - vendors (who can list books) and customers (who can buy or rent books).
 - **Authentication**: User authentication using hashed passwords and JWT.
-- **Book Listings**: Sellers can add books with details like title, author, price, and condition.
+- **Book Listings**: vendors can add books with details like title, author, price, and condition.
 - **Transactions**: Customers can buy or rent books, and the status of books (available, rented, sold) is updated accordingly.
 - **Book Reviews**: Users can leave reviews and ratings (1-5) for books they’ve purchased or rented.
 - **Responsive Design**: Bootstrap is used for styling, making the app mobile-friendly.
@@ -81,8 +81,8 @@ Visit the repo, click the green `Code` button, and copy the `SSH` key. Then clon
 The React app will run on `http://localhost:4000`, and the Flask API will run on `http://localhost:5555`.
 
 ## Usage
-1. Sign up as a new user (either seller or customer).
-2. As a seller, you can:
+1. Sign up as a new user (either vendor or customer).
+2. As a vendor, you can:
    - Add new books for sale or rent.
    - View and manage your listed books.
 3. As a customer, you can:
@@ -99,9 +99,9 @@ Here are the key API endpoints available in the app:
   
 - **Books**
   - `GET /api/books`: Get a list of all books.
-  - `POST /api/books`: Add a new book (sellers only).
-  - `PATCH /api/books/:id`: Edit a book's details (sellers only).
-  - `DELETE /api/books/:id`: Delete a book (sellers only).
+  - `POST /api/books`: Add a new book (vendors only).
+  - `PATCH /api/books/:id`: Edit a book's details (vendors only).
+  - `DELETE /api/books/:id`: Delete a book (vendors only).
 
 - **Transactions**
   - `POST /api/transactions`: Create a new transaction (buy/rent a book).
@@ -112,11 +112,11 @@ Here are the key API endpoints available in the app:
   - `GET /api/reviews/:book_id`: Get reviews for a specific book.
 
 ## Database Models
-- **User**: Stores information about users, including their roles (seller or customer).
+- **User**: Stores information about users, including their roles (vendor or customer).
 - **Book**: Stores book information, including title, author, price, condition, and status (available, sold, or rented).
 - **Transaction**: Represents transactions, such as book purchases or rentals.
 - **Review**: Stores user reviews and ratings for books.
-- **Role**: Defines user roles in the system (seller or customer).
+- **Role**: Defines user roles in the system (vendor or customer).
 
 ## Deployment
 
