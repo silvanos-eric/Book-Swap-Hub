@@ -8,6 +8,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY') or generate_secret_key()
 SQLALCHEMY_DATABASE_URI = os.environ.get(
     'DATABASE_URI') or 'sqlite:///bookshub.db'
 
+print(SECRET_KEY)
+print(SQLALCHEMY_DATABASE_URI)
+
 # Create a Flask instance
 app = Flask(__name__, static_folder='../client/dist', static_url_path='')
 app.secret_key = SECRET_KEY
