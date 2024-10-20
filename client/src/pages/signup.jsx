@@ -1,5 +1,151 @@
+import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
+
+import {
+  Form,
+  Button,
+  Container,
+  Row,
+  CustomErroMessage,
+  Spinner,
+} from "@components";
+import { signupFormValidationSchema } from "@utils";
+import { useSignup } from "../hooks";
+
+import "./signup.css";
+
 const Signup = () => {
-  return <>Signup</>;
+  const { signupUser, loading } = useSignup();
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const data = await signupUser(values); // Pass form values to custom hook
+      console.log("User signed up: ", data);
+    } catch (error) {
+      console.error(error);
+    }
+    setSubmitting(false); // Mark the form as not submitting
+  };
+
+  return (
+    <Container
+      className="h-100 d-grid"
+      style={{ maxWidth: 600, placeContent: "center" }}
+    >
+      <Row>
+        <h1>Sign Up</h1>
+      </Row>
+      <Row>
+        <Formik
+          initialValues={{
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            role: "",
+          }}
+          validationSchema={signupFormValidationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting, errors, touched }) => (
+            <Form as={FormikForm} className="form mx-auto mt-4">
+              <Form.Group className="mb-3" controlId="formBasicUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  as={Field}
+                  name="username"
+                  type="text"
+                  placeholder="e.g. John"
+                  isInvalid={!!errors.username && touched.username}
+                  disabled={isSubmitting}
+                />
+                <ErrorMessage name="username" component={CustomErroMessage} />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Email address</Form.Label>
+                <Form.Control
+                  as={Field}
+                  name="email"
+                  type="email"
+                  placeholder="e.g. john@example.com"
+                  isInvalid={!!errors.email && touched.email}
+                  disabled={isSubmitting}
+                />
+                <ErrorMessage name="email" component={CustomErroMessage} />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="formBasicPassword">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  as={Field}
+                  name="password"
+                  type="password"
+                  isInvalid={!!errors.password && touched.password}
+                  placeholder="Password"
+                  disabled={isSubmitting}
+                />
+                <ErrorMessage name="password" component={CustomErroMessage} />
+              </Form.Group>
+
+              <Form.Group
+                className="mb-3"
+                controlId="formBasicPasswordConfirmation"
+              >
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control
+                  as={Field}
+                  name="confirmPassword"
+                  type="password"
+                  isInvalid={
+                    !!errors.confirmPassword && touched.confirmPassword
+                  }
+                  placeholder="Password"
+                  disabled={isSubmitting}
+                />
+                <ErrorMessage
+                  name="confirmPassword"
+                  component={CustomErroMessage}
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="formBasicRole">
+                <Form.Label>Role</Form.Label>
+                {["customer", "vendor"].map((role) => (
+                  <div key={role} className="mb-3">
+                    <Form.Check
+                      type="radio"
+                      label={role}
+                      name="role"
+                      id={role}
+                      as={Field}
+                      value={role}
+                      isInvalid={!!errors.role && touched.role}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                ))}
+                <ErrorMessage name="role" component={CustomErroMessage} />
+              </Form.Group>
+
+              <Button
+                disabled={isSubmitting || loading}
+                variant="primary"
+                type="submit"
+              >
+                {loading ? (
+                  <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                ) : (
+                  "Submit"
+                )}
+              </Button>
+            </Form>
+          )}
+        </Formik>
+      </Row>
+    </Container>
+  );
 };
 
 export { Signup };

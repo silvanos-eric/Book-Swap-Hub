@@ -35,7 +35,7 @@ const LandingPage = () => {
       </Row>
       <Row as="section" className="pt-5">
         <Col>
-          <Button as={Link} to="/signup" variant="warning">
+          <Button as={Link} to="/signup" variant="warning" size="lg">
             {data.cta.heading}
           </Button>
         </Col>

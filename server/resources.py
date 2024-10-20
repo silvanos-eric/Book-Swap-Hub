@@ -61,7 +61,7 @@ def createUser(data):
     email = data['email']
     profile_picture = data.get('profile_picture')
     password = data['password']
-    password_confirmation = data['password_confirmation']
+    password_confirmation = data['confirm_password']
 
     if password != password_confirmation:
         raise ValueError('Passwords do not match')
@@ -214,15 +214,19 @@ class ReviewByID(Resource):
 class Users(Resource):
 
     def get(self):
-        user_list = User.query.all()
-        user_dict_list = [user.to_dict() for user in user_list]
-
-        return user_dict_list
+        try:
+            validate_login()
+            user_list = User.query.all()
+            user_dict_list = [user.to_dict() for user in user_list]
+            return user_dict_list
+        except Exception as e:
+            error = handleException(e)
+            return error
 
     def post(self):
         try:
             validate_login()
-            data = request.json
+            data = request.snake_case_data
 
             new_user = createUser(data)
 
@@ -241,9 +245,9 @@ class UserByID(Resource):
 
     def get(self, id):
         try:
-            validate_login()
+            # validate_login()
 
-            user = db.session.query(User, id)
+            user = db.session.get(User, id)
 
             if not user:
                 raise ValueError(authError)
@@ -279,7 +283,7 @@ class SignUp(Resource):
 
     def post(self):
         try:
-            data = request.json
+            data = request.snake_case_data
 
             new_user = createUser(data)
 

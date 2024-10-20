@@ -4,18 +4,25 @@ import {
   VendorHome,
   CustomerHome,
   ErrorPage,
-  Books,
+  Catalogue,
   Book,
   Signup,
   Login,
   Contact,
-  BooksForSale,
-} from "@pages";
+  VendorBooks,
+  CustomerBooks,
+} from "./pages";
+
+import { UserProvider } from "./contexts";
 
 const routes = [
   {
     path: "/",
-    element: <Root />,
+    element: (
+      <UserProvider>
+        <Root />
+      </UserProvider>
+    ),
     errorElement: <ErrorPage />,
     children: [
       {
@@ -23,16 +30,16 @@ const routes = [
         element: <LandingPage />,
       },
       {
-        path: "customer",
+        path: "customer-home",
         element: <CustomerHome />,
       },
       {
-        path: "vendor",
+        path: "vendor-home",
         element: <VendorHome />,
       },
       {
-        path: "books",
-        element: <Books />,
+        path: "catalogue",
+        element: <Catalogue />,
       },
       {
         path: "book",
@@ -51,8 +58,12 @@ const routes = [
         element: <Contact />,
       },
       {
-        path: "books-for-sale",
-        element: <BooksForSale />,
+        path: "vendor-books",
+        element: <VendorBooks />,
+      },
+      {
+        path: "customer-books",
+        element: <CustomerBooks />,
       },
     ],
   },
