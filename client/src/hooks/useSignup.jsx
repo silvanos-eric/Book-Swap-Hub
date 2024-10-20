@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { signup } from "@api";
+import { signup } from "../api";
 
 const useSignup = () => {
   const [loading, setLoading] = useState(false);

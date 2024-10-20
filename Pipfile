@@ -18,6 +18,7 @@ flask-bcrypt = "*"
 password-validator = "*"
 gunicorn = "*"
 psycopg2-binary = "*"
+inflection = "*"
 
 [dev-packages]
 
