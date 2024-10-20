@@ -1,8 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Container, Navbar, Nav } from ".";
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate("/", { replace: true });
+  };
+
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container>
@@ -21,6 +27,7 @@ const Header = () => {
             <Nav.Link as={Link} to="/books">
               Books
             </Nav.Link>
+            <Nav.Link onClick={handleLogin}>Logout</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
