@@ -8,9 +8,8 @@
 5. [Usage](#usage)
 6. [API Endpoints](#api-endpoints)
 7. [Database Models](#database-models)
-8. [Testing](#testing)
-9. [Deployment](#deployment)
-10. [License](#license)
+8. [Deployment](#deployment)
+9. [License](#license)
 
 ## Overview
 The Book Swap Hub App is a full-stack web application that allows users to buy, sell, rent, and review books. It includes functionality for user authentication, book listings, leaving book reviews, and transaction management. The front end is built using React and styled with Bootstrap for a responsive design, while the backend is powered by Flask, handling API requests, database interactions, and authentication.
