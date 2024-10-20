@@ -272,7 +272,9 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(Enum('seller', 'customer'), nullable=False, unique=True)
+    name = db.Column(Enum('seller', 'customer', name='role_type'),
+                     nullable=False,
+                     unique=True)
 
     def __repr__(self):
         return f'<Role {self.name}>'
