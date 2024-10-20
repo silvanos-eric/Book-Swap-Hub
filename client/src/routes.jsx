@@ -9,6 +9,7 @@ import {
   Signup,
   Login,
   Contact,
+  BooksForSale,
 } from "./pages";
 
 const routes = [
@@ -48,6 +49,10 @@ const routes = [
       {
         path: "contact",
         element: <Contact />,
+      },
+      {
+        path: "books-for-sale",
+        element: <BooksForSale />,
       },
     ],
   },
