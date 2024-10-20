@@ -1,5 +1,5 @@
 const Catalogue = () => {
-  return <>Books</>;
+  return <>Catalogue</>;
 };
 
 export { Catalogue };

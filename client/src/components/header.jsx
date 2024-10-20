@@ -24,8 +24,8 @@ const Header = () => {
             <Nav.Link as={NavLink} to="/signup">
               Sign up
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/books">
-              Books
+            <Nav.Link as={NavLink} to="/catalogue">
+              Catalogue
             </Nav.Link>
             <Nav.Link as="button" onClick={handleLogin}>
               Logout
