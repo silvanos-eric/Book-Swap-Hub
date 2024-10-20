@@ -10,7 +10,7 @@ const Header = () => {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary">
+    <Navbar expand="lg" className="bg-body-tertiary sticky-top">
       <Container>
         <Navbar.Brand as={Link} to="/">
           Book Swap Hub
@@ -27,7 +27,9 @@ const Header = () => {
             <Nav.Link as={Link} to="/books">
               Books
             </Nav.Link>
-            <Nav.Link onClick={handleLogin}>Logout</Nav.Link>
+            <Nav.Link as="button" onClick={handleLogin}>
+              Logout
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
