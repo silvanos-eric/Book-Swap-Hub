@@ -10,7 +10,7 @@ const Header = () => {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary sticky-top">
+    <Navbar expand="lg" className="bg-white sticky-top p-3">
       <Container>
         <Navbar.Brand as={Link} to="/">
           Book Swap Hub

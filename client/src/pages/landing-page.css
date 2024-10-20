@@ -1,0 +1,13 @@
+.hero {
+  background-image: url(../assets/hero.jpg);
+  min-height: 70dvh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+
+  .hero-content {
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 4rem;
+  }
+}
