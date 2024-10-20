@@ -16,6 +16,7 @@ sqlalchemy-serializer = "*"
 email-validator = "*"
 flask-bcrypt = "*"
 password-validator = "*"
+gunicorn = "*"
 
 [dev-packages]
 

@@ -1,4 +1,5 @@
 from config import app
+from flask import send_file
 from flask_migrate import Migrate
 from flask_restful import Api
 from models import db
@@ -26,6 +27,19 @@ api.add_resource(CheckSession, '/api/check_session')
 api.add_resource(ClearSession, '/api/clear_session')
 api.add_resource(Logout, '/api/logout')
 api.add_resource(Transactions, '/api/transactions')
+
+
+# Serve React app
+@app.route('/')
+def serve():
+    return send_file(app.static_folder + '/index.html')
+
+
+# Catch-all route to send any unmatched paths to the React app
+@app.route('/<path:path>')
+def catch_all(path):
+    return send_file(app.static_folder + '/index.html')
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
