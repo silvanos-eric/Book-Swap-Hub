@@ -17,7 +17,7 @@ const useSignup = () => {
     } catch (err) {
       setError(err.message);
       setLoading(false);
-      throw err;
+      throw err; // Throw wht error so that the requesting component can handle it
     }
   };
 

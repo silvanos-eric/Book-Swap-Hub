@@ -3,7 +3,7 @@ import { VendorHome } from "./vendor-home";
 import { CustomerHome } from "./customer-home";
 import { Root } from "./root";
 import { ErrorPage } from "./error-page";
-import { Books } from "./books";
+import { Catalogue } from "./catalogue";
 import { Login } from "./login";
 import { Signup } from "./signup";
 import { Contact } from "./contact";
@@ -18,7 +18,7 @@ export {
   Signup,
   LandingPage,
   Login,
-  Books,
+  Catalogue,
   VendorHome,
   CustomerHome,
   Root,
