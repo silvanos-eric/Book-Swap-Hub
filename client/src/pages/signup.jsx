@@ -14,11 +14,11 @@ import { useSignup } from "../hooks";
 import "./signup.css";
 
 const Signup = () => {
-  const { signupUser, loading } = useSignup();
+  const { signUpUser, loading } = useSignup();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await signupUser(values); // Pass form values to custom hook
+      const data = await signUpUser(values); // Pass form values to custom hook
       console.log("User signed up: ", data);
     } catch (error) {
       console.error(error);

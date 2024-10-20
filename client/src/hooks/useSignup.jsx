@@ -5,7 +5,7 @@ import { signup } from "../api";
 const useSignup = () => {
   const [loading, setLoading] = useState(false);
 
-  const signupUser = useCallback(async (formData) => {
+  const signUpUser = useCallback(async (formData) => {
     setLoading(true);
 
     try {
@@ -18,7 +18,7 @@ const useSignup = () => {
     }
   }, []);
 
-  return { signupUser, loading };
+  return { signUpUser, loading };
 };
 
 export { useSignup };
