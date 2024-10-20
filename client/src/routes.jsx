@@ -1,35 +1,55 @@
-import Home from "./pages/Home";
-import Books from "./pages/Books";
-import Signup from "./pages/UserSignup";
-import Login from "./pages/UserLogin";
-import ErrorPage from "./pages/ErrorPage";
-import Contact from "./pages/Contact";
+import {
+  LandingPage,
+  Root,
+  VendorHome,
+  CustomerHome,
+  ErrorPage,
+  Books,
+  Book,
+  Signup,
+  Login,
+  Contact,
+} from "./pages";
 
 const routes = [
   {
     path: "/",
-    element: <Home />,
+    element: <Root />,
     errorElement: <ErrorPage />,
-  },
-  {
-    path: "/books",
-    element: <Books />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/signup",
-    element: <Signup />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/contact",
-    element: <Contact />,
-    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/",
+        element: <LandingPage />,
+      },
+      {
+        path: "customer",
+        element: <CustomerHome />,
+      },
+      {
+        path: "vendor",
+        element: <VendorHome />,
+      },
+      {
+        path: "books",
+        element: <Books />,
+      },
+      {
+        path: "book",
+        element: <Book />,
+      },
+      {
+        path: "signup",
+        element: <Signup />,
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
+      },
+    ],
   },
 ];
 
