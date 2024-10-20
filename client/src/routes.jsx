@@ -13,10 +13,16 @@ import {
   CustomerBooks,
 } from "./pages";
 
+import { UserProvider } from "./contexts";
+
 const routes = [
   {
     path: "/",
-    element: <Root />,
+    element: (
+      <UserProvider>
+        <Root />
+      </UserProvider>
+    ),
     errorElement: <ErrorPage />,
     children: [
       {
@@ -24,11 +30,11 @@ const routes = [
         element: <LandingPage />,
       },
       {
-        path: "customer",
+        path: "customer-home",
         element: <CustomerHome />,
       },
       {
-        path: "vendor",
+        path: "vendor-home",
         element: <VendorHome />,
       },
       {

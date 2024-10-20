@@ -1,3 +1,4 @@
 import { signup } from "./signup";
+import { checkSession } from "./check-session";
 
-export { signup };
+export { signup, checkSession };
