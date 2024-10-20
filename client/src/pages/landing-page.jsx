@@ -1,5 +1,9 @@
 const LandingPage = () => {
-  return <>Landing Page</>;
+  return (
+    <>
+      <>Landing Page</>
+    </>
+  );
 };
 
 export { LandingPage };

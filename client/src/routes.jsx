@@ -10,7 +10,7 @@ import {
   Login,
   Contact,
   BooksForSale,
-} from "./pages";
+} from "@pages";
 
 const routes = [
   {
