@@ -6,13 +6,16 @@ import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import Form from "react-bootstrap/Form";
+import Spinner from "react-bootstrap/Spinner";
 
 // Custom components
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { BookCard } from "./book-card";
+import { CustomErroMessage } from "./custom-error-message";
 
 // Custom exports
-export { Footer, Header, BookCard };
+export { Footer, Header, BookCard, CustomErroMessage };
 // Bootstrap exports
-export { Button, Container, Row, Col, Nav, Navbar, NavDropdown };
+export { Button, Container, Row, Col, Nav, Navbar, NavDropdown, Form, Spinner };

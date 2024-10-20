@@ -8,11 +8,11 @@ import { Login } from "./login";
 import { Signup } from "./signup";
 import { Contact } from "./contact";
 import { Book } from "./book";
-import { Transactions } from "./transactions";
-import { BooksForSale } from "./books-for-sale";
+import { CustomerBooks } from "./customer-books";
+import { VendorBooks } from "./vendor-books";
 
 export {
-  BooksForSale,
+  VendorBooks,
   Book,
   Contact,
   Signup,
@@ -23,5 +23,5 @@ export {
   CustomerHome,
   Root,
   ErrorPage,
-  Transactions,
+  CustomerBooks,
 };
