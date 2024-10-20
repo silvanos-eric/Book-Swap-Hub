@@ -46,7 +46,8 @@ class User(db.Model, SerializerMixin):
         db.DateTime, default=func.now(),
         onupdate=func.now())  # Automatically updated on record modification
 
-    serialize_only = ('id', 'username', 'email', 'profile_picture')
+    serialize_only = ('id', 'username', 'email', 'profile_picture',
+                      'role_name_list')
 
     # Relationships
     books_for_sale = db.relationship('Book',
@@ -62,6 +63,10 @@ class User(db.Model, SerializerMixin):
     roles = db.relationship('Role',
                             secondary=user_roles,
                             backref=db.backref('users', lazy='dynamic'))
+
+    @hybrid_property
+    def role_name_list(self):
+        return [role.name for role in self.roles]
 
     # ORM level constraint for email column. Flexible and more robust
     @validates('email')
@@ -268,13 +273,15 @@ class Review(db.Model, SerializerMixin):
         return f"<Review {self.id} {self.comment}>"
 
 
-class Role(db.Model):
+class Role(db.Model, SerializerMixin):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(Enum('vendor', 'customer', name='role_type'),
                      nullable=False,
                      unique=True)
+
+    serialize_only = ('name', 'id')
 
     def __repr__(self):
         return f'<Role {self.name}>'

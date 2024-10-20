@@ -245,9 +245,9 @@ class UserByID(Resource):
 
     def get(self, id):
         try:
-            validate_login()
+            # validate_login()
 
-            user = db.session.query(User, id)
+            user = db.session.get(User, id)
 
             if not user:
                 raise ValueError(authError)
