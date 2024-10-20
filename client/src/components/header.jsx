@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import { Container, Navbar, Nav } from ".";
 
@@ -10,21 +10,21 @@ const Header = () => {
   };
 
   return (
-    <Navbar expand="lg" className="bg-white sticky-top p-3">
+    <Navbar expand="lg" className="bg-white p-3">
       <Container>
-        <Navbar.Brand as={Link} to="/">
+        <Navbar.Brand as={NavLink} to="/">
           Book Swap Hub
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link as={Link} to="/login">
+            <Nav.Link as={NavLink} to="/login">
               Login
             </Nav.Link>
-            <Nav.Link as={Link} to="/signup">
+            <Nav.Link as={NavLink} to="/signup">
               Sign up
             </Nav.Link>
-            <Nav.Link as={Link} to="/books">
+            <Nav.Link as={NavLink} to="/books">
               Books
             </Nav.Link>
             <Nav.Link as="button" onClick={handleLogin}>
