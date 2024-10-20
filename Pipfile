@@ -6,9 +6,19 @@ name = "pypi"
 [packages]
 flask = "*"
 flask-restful = "*"
+markupsafe = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+faker = "*"
+requests = "*"
+flask-jwt-extended = "*"
+sqlalchemy-serializer = "*"
+email-validator = "*"
+flask-bcrypt = "*"
+password-validator = "*"
 gunicorn = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.13"
+python_version = "3.12"
