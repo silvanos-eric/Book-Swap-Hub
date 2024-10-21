@@ -1,7 +1,6 @@
 import { signup } from "./signup";
 import { checkSession } from "./check-session";
+import { logout } from "./logout";
 import { login } from "./login";
 
-import { logout } from "./logout";
-
-export { signup, checkSession, logout, login };
+export { signup, checkSession, login, logout };
