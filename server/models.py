@@ -141,6 +141,7 @@ class Book(db.Model, SerializerMixin):
     price = db.Column(db.Numeric(10, 2), nullable=False,
                       default=0.00)  # Price of the book, default is 0.00
     image_url = db.Column(db.Text)
+    description = db.Column(db.String(255))
     condition = db.Column(
         Enum('new', 'used', name='book_condition'),
         nullable=False,
@@ -157,7 +158,7 @@ class Book(db.Model, SerializerMixin):
     )  # Foreign key to the users table
 
     serialize_only = ('id', 'title', 'author', 'price', 'condition', 'status',
-                      'user_id', 'image_url')
+                      'user_id', 'image_url', 'description')
 
     # Relationships
     reviews = db.relationship('Review',

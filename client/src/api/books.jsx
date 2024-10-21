@@ -9,6 +9,7 @@ const books = async () => {
 
     return await response.json();
   } catch (error) {
+    console.error("Error Fetching Books: ", error);
     throw new Error("Failed to load books. Please try again later.");
   }
 };
