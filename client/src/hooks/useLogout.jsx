@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { logout as logoutApi } from "../api";
 import { UserContext } from "../contexts";
+import { showInfoToast } from "../utils";
 
 const useLogout = () => {
   const [loading, setLoading] = useState(false);
@@ -12,9 +13,10 @@ const useLogout = () => {
   const logOutUser = useCallback(async () => {
     try {
       setLoading(true);
-      logoutApi();
-      logout();
+      logoutApi(); // Clear session
+      logout(); // Clear state
       navigate("/");
+      showInfoToast("Logout success");
       setLoading(false);
     } catch (error) {
       setLoading(false);

@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
 
 import {
@@ -7,13 +8,16 @@ import {
   Row,
   CustomErroMessage,
   Spinner,
-} from "@components";
-import { signupValidationSchema } from "../utils";
+} from "../components";
+import {
+  signupValidationSchema,
+  showErrorToast,
+  showSuccessToast,
+} from "../utils";
 import { useSignup } from "../hooks";
+import { UserContext } from "../contexts";
 
 import "./signup.css";
-import { useContext } from "react";
-import { UserContext } from "../contexts";
 
 const Signup = () => {
   const { signUpUser, loading } = useSignup();
@@ -23,8 +27,9 @@ const Signup = () => {
     try {
       const data = await signUpUser(values); // Pass form values to custom hook
       login(data);
+      showSuccessToast("Account created successfully");
     } catch (error) {
-      console.error(error);
+      showErrorToast(error.message);
     }
     setSubmitting(false); // Mark the form as not submitting
   };
