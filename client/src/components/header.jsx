@@ -1,12 +1,16 @@
 import { NavLink, useNavigate } from "react-router-dom";
 
 import { Container, Navbar, Nav } from ".";
+import { useLogout } from "../hooks";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { logOutUser } = useLogout();
 
-  const handleLogin = () => {
+  const handleLogout = () => {
     navigate("/", { replace: true });
+    logOutUser();
+    navigate("/");
   };
 
   return (
@@ -27,7 +31,7 @@ const Header = () => {
             <Nav.Link as={NavLink} to="/catalogue">
               Catalogue
             </Nav.Link>
-            <Nav.Link as="button" onClick={handleLogin}>
+            <Nav.Link as="button" onClick={handleLogout}>
               Logout
             </Nav.Link>
           </Nav>
