@@ -8,7 +8,7 @@ import {
   CustomErroMessage,
   Spinner,
 } from "@components";
-import { signupFormValidationSchema } from "@utils";
+import { signupValidationSchema } from "../utils";
 import { useSignup } from "../hooks";
 
 import "./signup.css";
@@ -16,12 +16,12 @@ import { useContext } from "react";
 import { UserContext } from "../contexts";
 
 const Signup = () => {
-  const { signupUser, loading } = useSignup();
+  const { signUpUser, loading } = useSignup();
   const { login } = useContext(UserContext);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await signupUser(values); // Pass form values to custom hook
+      const data = await signUpUser(values); // Pass form values to custom hook
       login(data);
     } catch (error) {
       console.error(error);
@@ -46,11 +46,11 @@ const Signup = () => {
             confirmPassword: "",
             role: "",
           }}
-          validationSchema={signupFormValidationSchema}
+          validationSchema={signupValidationSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting, errors, touched }) => (
-            <Form as={FormikForm} className="form mx-auto mt-4">
+            <Form noValidate as={FormikForm} className="form mx-auto mt-4">
               <Form.Group className="mb-3" controlId="formBasicUsername">
                 <Form.Label>Username</Form.Label>
                 <Form.Control
