@@ -7,6 +7,10 @@ import { Card, Button } from "../components";
 const Books = () => {
   const { books, loading, error } = useContext(BooksContext);
 
+  const handleDetailsClick = (bookId) => {
+    console.log(bookId);
+  };
+
   const variants = [
     "primary",
     "secondary",
@@ -34,7 +38,14 @@ const Books = () => {
         <Card.Body>
           <Card.Title>{book.title}</Card.Title>
           <Card.Text>{book.description}</Card.Text>
-          <Button variant="primary">Details</Button>
+          <Button
+            onClick={() => {
+              handleDetailsClick(book.id);
+            }}
+            variant="primary"
+          >
+            Details
+          </Button>
         </Card.Body>
       </Card>
     </Col>
