@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Container, Button, Row, Col } from "../components";
 import data from "../data/landing-page.json";
@@ -10,10 +10,10 @@ const LandingPage = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleNav = () => {
-    if (user.role_list.includes("customer")) {
+  const handleNavigation = () => {
+    if (user?.role_list.includes("customer")) {
       navigate("/customer-home");
-    } else if (user.role_list.includes("vendor")) {
+    } else if (user?.role_list.includes("vendor")) {
       navigate("/vendor-home");
     } else {
       navigate("/signup");
@@ -50,7 +50,7 @@ const LandingPage = () => {
       </Row>
       <Row as="section" className="pt-5">
         <Col>
-          <Button as={Link} to={handleNav} variant="warning" size="lg">
+          <Button onClick={handleNavigation} variant="warning" size="lg">
             {data.cta.heading}
           </Button>
         </Col>
