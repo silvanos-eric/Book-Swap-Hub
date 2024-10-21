@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { checkSession } from "../api";
 
 const useCheckSession = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const checkUserSession = useCallback(async () => {
     setLoading(false);

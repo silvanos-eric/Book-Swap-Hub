@@ -13,15 +13,17 @@ import {
   CustomerBooks,
 } from "./pages";
 
-import { UserProvider } from "./contexts";
+import { BooksProvider, UserProvider } from "./contexts";
 
 const routes = [
   {
     path: "/",
     element: (
-      <UserProvider>
-        <Root />
-      </UserProvider>
+      <BooksProvider>
+        <UserProvider>
+          <Root />
+        </UserProvider>
+      </BooksProvider>
     ),
     errorElement: <ErrorPage />,
     children: [
