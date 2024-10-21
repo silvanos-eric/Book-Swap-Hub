@@ -4,7 +4,7 @@ import {
   VendorHome,
   CustomerHome,
   ErrorPage,
-  Catalogue,
+  Books,
   Book,
   Signup,
   Login,
@@ -13,15 +13,17 @@ import {
   CustomerBooks,
 } from "./pages";
 
-import { UserProvider } from "./contexts";
+import { BooksProvider, UserProvider } from "./contexts";
 
 const routes = [
   {
     path: "/",
     element: (
-      <UserProvider>
-        <Root />
-      </UserProvider>
+      <BooksProvider>
+        <UserProvider>
+          <Root />
+        </UserProvider>
+      </BooksProvider>
     ),
     errorElement: <ErrorPage />,
     children: [
@@ -38,8 +40,8 @@ const routes = [
         element: <VendorHome />,
       },
       {
-        path: "catalogue",
-        element: <Catalogue />,
+        path: "books",
+        element: <Books />,
       },
       {
         path: "book",

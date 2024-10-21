@@ -42,12 +42,12 @@ def seed():
         for _ in range(no_of_users):
             username = fake.unique.user_name()
             email = f'{username}@student.moringaschool.com'
-            profile_picture = fake.image_url()
+            book_img = fake.image_url()
             role = rc.choice(roles)
 
             new_user = User(username=username,
                             email=email,
-                            profile_picture=profile_picture)
+                            profile_picture=book_img)
             new_user.roles.append(role)
             db.session.add(new_user)
         db.session.commit()
@@ -61,6 +61,8 @@ def seed():
             author = fake.name()
             price = fake.random_int(min=20, max=500)
             condition = rc.choice(['new', 'used'])
+            image_url = fake.image_url()
+            description = fake.sentence(nb_words=10)
 
             new_book = Book(
                 title=title,
@@ -68,6 +70,8 @@ def seed():
                 price=price,
                 condition=condition,
                 status='available',
+                image_url=image_url,
+                description=description,
                 user=rc.choice(vendors)  # Assign random vendor as the owner
             )
             db.session.add(new_book)

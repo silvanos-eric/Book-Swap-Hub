@@ -36,7 +36,7 @@ const Signup = () => {
 
   return (
     <Container
-      className="h-100 d-grid"
+      className="h-100 d-grid p-5"
       style={{ maxWidth: 600, placeContent: "center" }}
     >
       <Row>
@@ -141,7 +141,7 @@ const Signup = () => {
                 type="submit"
               >
                 {loading ? (
-                  <Spinner animation="border" role="status">
+                  <Spinner animation="border" role="status" size="sm">
                     <span className="visually-hidden">Loading...</span>
                   </Spinner>
                 ) : (

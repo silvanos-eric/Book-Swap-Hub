@@ -14,7 +14,7 @@ const UserProvider = ({ children }) => {
 
   // Check session on app load or refresh
   useEffect(() => {
-    const checkSession = async () => {
+    const fetchUser = async () => {
       try {
         const user = await checkUserSession(); // Ensure asynchronous call is awaited
         setUser(user);
@@ -23,7 +23,7 @@ const UserProvider = ({ children }) => {
       }
     };
 
-    checkSession();
+    fetchUser();
   }, [navigate, checkUserSession]); // Make sure useEffect has proper dependencies
 
   // Redirect based on user state changes
