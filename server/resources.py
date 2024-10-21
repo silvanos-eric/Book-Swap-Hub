@@ -319,7 +319,7 @@ class CheckSession(Resource):
 class ClearSession(Resource):
 
     def delete(self):
-        session.pop('user_id')
+        session.pop('user_id', None)
 
         return {}, 200
 
