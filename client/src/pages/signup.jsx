@@ -12,14 +12,17 @@ import { signupFormValidationSchema } from "@utils";
 import { useSignup } from "../hooks";
 
 import "./signup.css";
+import { useContext } from "react";
+import { UserContext } from "../contexts";
 
 const Signup = () => {
-  const { signUpUser, loading } = useSignup();
+  const { signupUser, loading } = useSignup();
+  const { login } = useContext(UserContext);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await signUpUser(values); // Pass form values to custom hook
-      console.log("User signed up: ", data);
+      const data = await signupUser(values); // Pass form values to custom hook
+      login(data);
     } catch (error) {
       console.error(error);
     }
