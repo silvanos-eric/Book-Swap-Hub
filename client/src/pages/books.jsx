@@ -31,7 +31,11 @@ const Books = () => {
         style={{ placeContent: "center" }}
       >
         {loading && <Col>{spinners}</Col>}
-        {error && <Col></Col>}
+        {error && (
+          <Col>
+            <p className="lead text-danger fst-italic">{error}</p>
+          </Col>
+        )}
       </Row>
     </Container>
   );

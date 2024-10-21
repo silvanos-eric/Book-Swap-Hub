@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 
 import { books } from "../api";
-import { showErrorToast } from "../utils";
 
 const useBooks = () => {
   const [loading, setLoading] = useState(false);
@@ -17,7 +16,6 @@ const useBooks = () => {
     } catch (error) {
       const message = error.message;
       setError(message);
-      showErrorToast(message);
     } finally {
       setLoading(false);
     }
