@@ -9,7 +9,11 @@ import {
   CustomErroMessage,
   Spinner,
 } from "../components";
-import { signupValidationSchema } from "../utils";
+import {
+  signupValidationSchema,
+  showErrorToast,
+  showSuccessToast,
+} from "../utils";
 import { useSignup } from "../hooks";
 import { UserContext } from "../contexts";
 
@@ -23,8 +27,9 @@ const Signup = () => {
     try {
       const data = await signUpUser(values); // Pass form values to custom hook
       login(data);
+      showSuccessToast("Account created successfully");
     } catch (error) {
-      console.error(error);
+      showErrorToast(error.message);
     }
     setSubmitting(false); // Mark the form as not submitting
   };

@@ -10,19 +10,19 @@ const LandingPage = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleNavigation = () => {
-    if (user?.role_list?.includes("customer")) {
+  const handleCTAClick = () => {
+    if (user?.role_name_list?.includes("customer")) {
       navigate("/customer-home");
-    } else if (user?.role_list?.includes("vendor")) {
+    } else if (user?.role_name_list?.includes("vendor")) {
       navigate("/vendor-home");
     } else {
       navigate("/signup");
     }
   };
 
-  const sections = data.sections.map((section, i) => (
+  const sections = data.sections.map((section, index) => (
     <Row
-      key={i}
+      key={index}
       as="section"
       className="pt-5 mx-auto"
       style={{ maxWidth: "800px" }}
@@ -50,7 +50,7 @@ const LandingPage = () => {
       </Row>
       <Row as="section" className="pt-5">
         <Col>
-          <Button onClick={handleNavigation} variant="warning" size="lg">
+          <Button onClick={handleCTAClick} variant="warning" size="lg">
             {data.cta.heading}
           </Button>
         </Col>

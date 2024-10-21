@@ -9,11 +9,13 @@ import {
   CustomErroMessage,
   Spinner,
 } from "../components";
-import { loginValidationSchema } from "../utils";
+import {
+  loginValidationSchema,
+  showErrorToast,
+  showSuccessToast,
+} from "../utils";
 import { useLogin } from "../hooks";
 import { UserContext } from "../contexts";
-
-import "./signup.css";
 
 const Login = () => {
   const { logInUser, loading } = useLogin();
@@ -23,8 +25,9 @@ const Login = () => {
     try {
       const data = await logInUser(values); // Pass form values to custom hook
       login(data);
+      showSuccessToast("Login success");
     } catch (error) {
-      console.error(error);
+      showErrorToast(error.message);
     }
     setSubmitting(false); // Mark the form as not submitting
   };

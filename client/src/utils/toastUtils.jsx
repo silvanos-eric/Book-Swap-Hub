@@ -7,8 +7,8 @@ import { toast } from "react-toastify";
  */
 export const showSuccessToast = (message) => {
   toast.success(message, {
-    position: toast.POSITION.TOP_RIGHT,
     autoClose: 3000, // Automatically closes after 3 seconds
+    position: "top-center",
   });
 };
 
@@ -18,8 +18,8 @@ export const showSuccessToast = (message) => {
  */
 export const showErrorToast = (message) => {
   toast.error(message, {
-    position: toast.POSITION.TOP_RIGHT,
-    autoClose: 5000, // Automatically closes after 5 seconds
+    autoClose: 8000, // Automatically closes after 5 seconds
+    position: "top-center",
   });
 };
 
@@ -29,7 +29,7 @@ export const showErrorToast = (message) => {
  */
 export const showInfoToast = (message) => {
   toast.info(message, {
-    position: toast.POSITION.TOP_RIGHT,
     autoClose: 4000, // Automatically closes after 4 seconds
+    position: "top-center",
   });
 };

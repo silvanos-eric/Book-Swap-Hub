@@ -18,9 +18,8 @@ const UserProvider = ({ children }) => {
       try {
         const user = await checkUserSession(); // Ensure asynchronous call is awaited
         setUser(user);
-        console.log(user);
       } catch (error) {
-        console.error(error);
+        error;
       }
     };
 
@@ -31,9 +30,9 @@ const UserProvider = ({ children }) => {
   useEffect(() => {
     if (user == null) {
       // do nothing
-    } else if (user.role_name_list.includes("customer")) {
+    } else if (user?.role_name_list?.includes("customer")) {
       navigate("/customer-home");
-    } else if (user.role_name_list.includes("vendor")) {
+    } else if (user?.role_name_list?.includes("vendor")) {
       navigate("/vendor-home");
     }
   }, [user, navigate]);

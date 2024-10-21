@@ -28,7 +28,7 @@ const Header = () => {
             {!user && (
               <>
                 <Nav.Link as={NavLink} to="/login">
-                  Login
+                  Log In
                 </Nav.Link>
                 <Nav.Link as={NavLink} to="/signup">
                   Sign up
