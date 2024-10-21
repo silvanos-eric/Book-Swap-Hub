@@ -35,7 +35,7 @@ const Header = () => {
                 </Nav.Link>
               </>
             )}
-            <Nav.Link as={NavLink} to="/catalogue">
+            <Nav.Link as={NavLink} to="/books">
               Catalogue
             </Nav.Link>
             {!!user && (

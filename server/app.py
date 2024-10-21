@@ -1,12 +1,12 @@
 from config import app
-from flask import request, send_file
+from flask import jsonify, request, send_file
 from flask_migrate import Migrate
 from flask_restful import Api
 from models import db
 from resources import (BookByID, Books, CheckSession, ClearSession, Login,
                        Logout, ReviewByID, Reviews, SignUp, Transactions,
                        UserByID, Users)
-from utils import camel_to_snake_case
+from utils import camel_to_snake_case, snake_to_camel_case
 
 # Initialize extensions
 db.init_app(app)
@@ -24,6 +24,17 @@ def before_request_func():
         # Convert camelCase to snake_case
         request_data = request.json
         request.snake_case_data = camel_to_snake_case(request_data)
+
+
+# Middlware function to convert response data to camelCase
+@app.after_request
+def modify_response(response):
+    if response.is_json:
+        # Convert the JSON data (if present) from snake_case to camelCase
+        response_data = response.get_json()
+        camel_case_data = snake_to_camel_case(response_data)
+        response.set_data(jsonify(camel_case_data).get_data())
+    return response
 
 
 # Register resources
