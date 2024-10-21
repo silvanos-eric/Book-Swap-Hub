@@ -1,10 +1,25 @@
-import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-import { Container, Button, Row, Col } from "@components";
-import data from "@data/landing-page.json";
+import { Container, Button, Row, Col } from "../components";
+import data from "../data/landing-page.json";
 import "./landing-page.css";
+import { UserContext } from "../contexts";
 
 const LandingPage = () => {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleNav = () => {
+    if (user.role_list.includes("customer")) {
+      navigate("/customer-home");
+    } else if (user.role_list.includes("vendor")) {
+      navigate("/vendor-home");
+    } else {
+      navigate("/signup");
+    }
+  };
+
   const sections = data.sections.map((section, i) => (
     <Row
       key={i}
@@ -35,7 +50,7 @@ const LandingPage = () => {
       </Row>
       <Row as="section" className="pt-5">
         <Col>
-          <Button as={Link} to="/signup" variant="warning" size="lg">
+          <Button as={Link} to={handleNav} variant="warning" size="lg">
             {data.cta.heading}
           </Button>
         </Col>

@@ -1,3 +1,6 @@
-import { signupFormValidationSchema } from "./validationSchemas";
+import {
+  signupValidationSchema,
+  loginValidationSchema,
+} from "./validationSchemas";
 
-export { signupFormValidationSchema };
+export { signupValidationSchema, loginValidationSchema };

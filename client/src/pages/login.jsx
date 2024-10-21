@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
 
 import {
@@ -7,19 +8,21 @@ import {
   Row,
   CustomErroMessage,
   Spinner,
-} from "@components";
-import { signupFormValidationSchema } from "@utils";
-import { useSignup } from "../hooks";
+} from "../components";
+import { loginValidationSchema } from "../utils";
+import { useLogin } from "../hooks";
+import { UserContext } from "../contexts";
 
 import "./signup.css";
 
 const Login = () => {
-  const { signupUser, loading } = useSignup();
+  const { logInUser, loading } = useLogin();
+  const { login } = useContext(UserContext);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await signupUser(values); // Pass form values to custom hook
-      console.log("User signed up: ", data);
+      const data = await logInUser(values); // Pass form values to custom hook
+      login(data);
     } catch (error) {
       console.error(error);
     }
@@ -32,35 +35,19 @@ const Login = () => {
       style={{ maxWidth: 600, placeContent: "center" }}
     >
       <Row>
-        <h1>Sign Up</h1>
+        <h1>Login</h1>
       </Row>
       <Row>
         <Formik
           initialValues={{
-            username: "",
             email: "",
             password: "",
-            confirmPassword: "",
-            role: "",
           }}
-          validationSchema={signupFormValidationSchema}
+          validationSchema={loginValidationSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting, errors, touched }) => (
-            <Form as={FormikForm} className="form mx-auto mt-4">
-              <Form.Group className="mb-3" controlId="formBasicUsername">
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  as={Field}
-                  name="username"
-                  type="text"
-                  placeholder="e.g. John"
-                  isInvalid={!!errors.username && touched.username}
-                  disabled={isSubmitting}
-                />
-                <ErrorMessage name="username" component={CustomErroMessage} />
-              </Form.Group>
-
+            <Form noValidate as={FormikForm} className="form mx-auto mt-4">
               <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>Email address</Form.Label>
                 <Form.Control
@@ -85,46 +72,6 @@ const Login = () => {
                   disabled={isSubmitting}
                 />
                 <ErrorMessage name="password" component={CustomErroMessage} />
-              </Form.Group>
-
-              <Form.Group
-                className="mb-3"
-                controlId="formBasicPasswordConfirmation"
-              >
-                <Form.Label>Confirm Password</Form.Label>
-                <Form.Control
-                  as={Field}
-                  name="confirmPassword"
-                  type="password"
-                  isInvalid={
-                    !!errors.confirmPassword && touched.confirmPassword
-                  }
-                  placeholder="Password"
-                  disabled={isSubmitting}
-                />
-                <ErrorMessage
-                  name="confirmPassword"
-                  component={CustomErroMessage}
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3" controlId="formBasicRole">
-                <Form.Label>Role</Form.Label>
-                {["customer", "vendor"].map((role) => (
-                  <div key={role} className="mb-3">
-                    <Form.Check
-                      type="radio"
-                      label={role}
-                      name="role"
-                      id={role}
-                      as={Field}
-                      value={role}
-                      isInvalid={!!errors.role && touched.role}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                ))}
-                <ErrorMessage name="role" component={CustomErroMessage} />
               </Form.Group>
 
               <Button
