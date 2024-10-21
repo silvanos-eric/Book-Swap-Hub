@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Container, Row, Col, Spinner } from "../components";
 import { BooksContext } from "../contexts";
@@ -6,9 +7,10 @@ import { Card, Button } from "../components";
 
 const Books = () => {
   const { books, loading, error } = useContext(BooksContext);
+  const navigate = useNavigate();
 
   const handleDetailsClick = (bookId) => {
-    console.log(bookId);
+    navigate(`/books/${bookId}`);
   };
 
   const variants = [

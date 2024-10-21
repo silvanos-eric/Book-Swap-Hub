@@ -44,7 +44,7 @@ const routes = [
         element: <Books />,
       },
       {
-        path: "book",
+        path: "books/:bookId",
         element: <Book />,
       },
       {
