@@ -11,9 +11,9 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   const handleNavigation = () => {
-    if (user?.role_list.includes("customer")) {
+    if (user?.role_list?.includes("customer")) {
       navigate("/customer-home");
-    } else if (user?.role_list.includes("vendor")) {
+    } else if (user?.role_list?.includes("vendor")) {
       navigate("/vendor-home");
     } else {
       navigate("/signup");
