@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
 
 import {
@@ -7,13 +8,12 @@ import {
   Row,
   CustomErroMessage,
   Spinner,
-} from "@components";
+} from "../components";
 import { signupValidationSchema } from "../utils";
 import { useSignup } from "../hooks";
+import { UserContext } from "../contexts";
 
 import "./signup.css";
-import { useContext } from "react";
-import { UserContext } from "../contexts";
 
 const Signup = () => {
   const { signUpUser, loading } = useSignup();

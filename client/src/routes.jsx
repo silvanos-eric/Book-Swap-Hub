@@ -1,3 +1,5 @@
+import { ToastContainer } from "react-toastify";
+
 import {
   LandingPage,
   Root,
@@ -14,6 +16,7 @@ import {
 } from "./pages";
 
 import { UserProvider } from "./contexts";
+import "react-toastify/dist/ReactToastify.css";
 
 const routes = [
   {
@@ -21,6 +24,7 @@ const routes = [
     element: (
       <UserProvider>
         <Root />
+        <ToastContainer />
       </UserProvider>
     ),
     errorElement: <ErrorPage />,
