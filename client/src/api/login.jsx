@@ -7,8 +7,8 @@ const login = async (formData) => {
     body: JSON.stringify(formData),
   });
 
+  // Handle non-200 responses
   if (!response.ok) {
-    // Handle non-200 responses
     const errorData = await response.json();
     throw new Error(errorData.message || "Failed to log in");
   }

@@ -4,7 +4,7 @@ import {
   VendorHome,
   CustomerHome,
   ErrorPage,
-  Catalogue,
+  Books,
   Book,
   Signup,
   Login,
@@ -38,8 +38,8 @@ const routes = [
         element: <VendorHome />,
       },
       {
-        path: "catalogue",
-        element: <Catalogue />,
+        path: "books",
+        element: <Books />,
       },
       {
         path: "book",
