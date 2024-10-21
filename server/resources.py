@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 
 authError = 'Authentication Required.'
-credentialsError = "The email/username or password is incorrect. Please check your credentials or sign up if you don't have an account."
+credentialsError = "Invalid email/password"
 
 
 def validate_login():
@@ -43,12 +43,18 @@ def handleException(e):
             'message':
             'Malformed JSON body. Please ensure the properties provided are well formatted.'
         }, 400
-    if isinstance(e, IntegrityError) and 'UNIQUE' in str(e):
+    if isinstance(e, IntegrityError) and 'UNIQUE' in str(
+            e) and 'users.username' in str(e):
         return {
-            "error":
-            "Account creation failed",
-            "message":
-            "An account with these credentials may already exist. Please try logging in or use the 'Forgot Password' option if necessary."
+            'error': 'Account creation failed',
+            'message': 'Username already taken.'
+        }, 400
+    if isinstance(
+            e,
+            IntegrityError) and 'UNIQUE' in str(e) and 'users.email' in str(e):
+        return {
+            "error": "Account creation failed",
+            "message": "Email already taken. Log in or reset password"
         }, 400
 
     print(f'***{type(e)}***')
@@ -319,7 +325,7 @@ class CheckSession(Resource):
 class ClearSession(Resource):
 
     def delete(self):
-        session.pop('user_id')
+        session.pop('user_id', None)
 
         return {}, 200
 

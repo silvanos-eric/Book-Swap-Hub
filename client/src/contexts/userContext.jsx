@@ -18,17 +18,8 @@ const UserProvider = ({ children }) => {
       try {
         const user = await checkUserSession(); // Ensure asynchronous call is awaited
         setUser(user);
-        console.log(user);
-        if (user.role_name_list.includes("customer")) {
-          navigate("/customer-home");
-        } else if (user.role_name_list.includes("vendor")) {
-          navigate("/vendor-home");
-        } else {
-          setUser(null);
-          navigate("/", { replace: true });
-        }
       } catch (error) {
-        console.error(error);
+        error;
       }
     };
 
@@ -38,11 +29,10 @@ const UserProvider = ({ children }) => {
   // Redirect based on user state changes
   useEffect(() => {
     if (user == null) {
-      navigate("/", { replace: true });
-    } else if (user.role_name_list.includes("customer")) {
+      // do nothing
+    } else if (user?.role_name_list?.includes("customer")) {
       navigate("/customer-home");
-    } else if (user.role_name_list.includes("vendor")) {
-      // Fix typo here
+    } else if (user?.role_name_list?.includes("vendor")) {
       navigate("/vendor-home");
     }
   }, [user, navigate]);

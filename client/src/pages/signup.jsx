@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
 
 import {
@@ -7,21 +8,28 @@ import {
   Row,
   CustomErroMessage,
   Spinner,
-} from "@components";
-import { signupFormValidationSchema } from "@utils";
+} from "../components";
+import {
+  signupValidationSchema,
+  showErrorToast,
+  showSuccessToast,
+} from "../utils";
 import { useSignup } from "../hooks";
+import { UserContext } from "../contexts";
 
 import "./signup.css";
 
 const Signup = () => {
-  const { signupUser, loading } = useSignup();
+  const { signUpUser, loading } = useSignup();
+  const { login } = useContext(UserContext);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await signupUser(values); // Pass form values to custom hook
-      console.log("User signed up: ", data);
+      const data = await signUpUser(values); // Pass form values to custom hook
+      login(data);
+      showSuccessToast("Account created successfully");
     } catch (error) {
-      console.error(error);
+      showErrorToast(error.message);
     }
     setSubmitting(false); // Mark the form as not submitting
   };
@@ -43,11 +51,11 @@ const Signup = () => {
             confirmPassword: "",
             role: "",
           }}
-          validationSchema={signupFormValidationSchema}
+          validationSchema={signupValidationSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting, errors, touched }) => (
-            <Form as={FormikForm} className="form mx-auto mt-4">
+            <Form noValidate as={FormikForm} className="form mx-auto mt-4">
               <Form.Group className="mb-3" controlId="formBasicUsername">
                 <Form.Label>Username</Form.Label>
                 <Form.Control
