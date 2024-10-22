@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useBookById } from "../hooks";
+import { useBookById, useCreateTransaction } from "../hooks";
 import {
   Container,
   Row,
@@ -17,19 +17,27 @@ const Book = () => {
   const navigate = useNavigate();
   const { book, loading, error } = useBookById(bookId);
   const { user } = useContext(UserContext);
+  const { createTransaction, isLoading: transctionLoading } =
+    useCreateTransaction();
 
   const handleBuyClick = () => {
     if (!user) {
       navigate("/login");
     }
-    console.log("buy");
+    createTransaction({
+      transactionType: "buy",
+      bookId: book.id,
+    });
   };
 
   const handleRentClick = () => {
     if (!user) {
       navigate("/login");
     }
-    console.log("rent");
+    createTransaction({
+      transactionType: "rent",
+      bookId: book.id,
+    });
   };
 
   useEffect(() => {}, [bookId]);
@@ -71,10 +79,18 @@ const Book = () => {
           {book.status == "available" && (
             <Row as="section" className="mt-4">
               <ButtonGroup aria-label="Basic example">
-                <Button onClick={handleBuyClick} variant="success">
+                <Button
+                  disabled={transctionLoading}
+                  onClick={handleBuyClick}
+                  variant="success"
+                >
                   Buy
                 </Button>
-                <Button onClick={handleRentClick} variant="secondary">
+                <Button
+                  disabled={transctionLoading}
+                  onClick={handleRentClick}
+                  variant="secondary"
+                >
                   Rent
                 </Button>
               </ButtonGroup>
