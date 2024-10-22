@@ -56,7 +56,7 @@ const Book = () => {
   useEffect(() => {}, [bookId]);
 
   return (
-    <Container as="main" className="py-5">
+    <Container as="main" className="py-5" style={{ maxWidth: 600 }}>
       {loading && (
         <Row as="section">
           <p className="lead">Loading....</p>
