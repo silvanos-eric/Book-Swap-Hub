@@ -64,7 +64,7 @@ const Signup = () => {
             email: "",
             password: "",
             confirmPassword: "",
-            role: "",
+            role: "customer",
           }}
           validationSchema={signupValidationSchema}
           onSubmit={handleSubmit}
@@ -131,7 +131,7 @@ const Signup = () => {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3" controlId="formBasicRole">
+              <Form.Group className="mb-3 d-none" controlId="formBasicRole">
                 <Form.Label>Role</Form.Label>
                 {["customer", "vendor"].map((role) => (
                   <div key={role} className="mb-3">
