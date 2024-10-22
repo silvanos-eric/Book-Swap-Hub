@@ -141,7 +141,7 @@ class Book(db.Model, SerializerMixin):
     price = db.Column(db.Numeric(10, 2), nullable=False,
                       default=0.00)  # Price of the book, default is 0.00
     image_url = db.Column(db.Text)
-    description = db.Column(db.String(255))
+    description = db.Column(db.Text)
     condition = db.Column(
         Enum('new', 'used', name='book_condition'),
         nullable=False,

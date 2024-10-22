@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 
 import { postTransactions } from "../api";
-import { showErrorToast, showSuccessToast } from "../utils";
 
 const useCreateTransaction = () => {
   const [transaction, setTransaction] = useState(null);
@@ -17,6 +16,7 @@ const useCreateTransaction = () => {
       setTransaction(serverData);
     } catch (error) {
       setError(error);
+      throw error;
     } finally {
       setIsLoading(false);
     }

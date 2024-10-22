@@ -23,39 +23,40 @@ const Book = () => {
 
   const handleBuyClick = async () => {
     if (!user) {
-      navigate("/login");
+      return navigate("/login");
     }
+
     try {
       await createTransaction({
         transactionType: "buy",
         bookId: book.id,
       });
-      showSuccessToast("Successfully bought book");
-    } catch (error) {
-      showErrorToast(error);
+      showSuccessToast("Book purchased successfully");
+    } catch (err) {
+      showErrorToast(err.message);
     }
   };
 
-  const handleRentClick = () => {
+  const handleRentClick = async () => {
     if (!user) {
-      navigate("/login");
+      return navigate("/login");
     }
 
     try {
-      createTransaction({
+      await createTransaction({
         transactionType: "rent",
         bookId: book.id,
       });
-      showSuccessToast("Successfully rented book");
-    } catch (error) {
-      showErrorToast(error);
+      showSuccessToast("Book rented successfully");
+    } catch (err) {
+      showErrorToast(err.message);
     }
   };
 
   useEffect(() => {}, [bookId]);
 
   return (
-    <Container as="main" className="py-5">
+    <Container as="main" className="py-5" style={{ maxWidth: 600 }}>
       {loading && (
         <Row as="section">
           <p className="lead">Loading....</p>
