@@ -11,6 +11,7 @@ import {
   Button,
 } from "../components";
 import { UserContext } from "../contexts";
+import { showErrorToast, showSuccessToast } from "../utils";
 
 const Book = () => {
   const { bookId } = useParams();
@@ -20,24 +21,35 @@ const Book = () => {
   const { createTransaction, isLoading: transctionLoading } =
     useCreateTransaction();
 
-  const handleBuyClick = () => {
+  const handleBuyClick = async () => {
     if (!user) {
       navigate("/login");
     }
-    createTransaction({
-      transactionType: "buy",
-      bookId: book.id,
-    });
+    try {
+      await createTransaction({
+        transactionType: "buy",
+        bookId: book.id,
+      });
+      showSuccessToast("Successfully bought book");
+    } catch (error) {
+      showErrorToast(error);
+    }
   };
 
   const handleRentClick = () => {
     if (!user) {
       navigate("/login");
     }
-    createTransaction({
-      transactionType: "rent",
-      bookId: book.id,
-    });
+
+    try {
+      createTransaction({
+        transactionType: "rent",
+        bookId: book.id,
+      });
+      showSuccessToast("Successfully rented book");
+    } catch (error) {
+      showErrorToast(error);
+    }
   };
 
   useEffect(() => {}, [bookId]);
