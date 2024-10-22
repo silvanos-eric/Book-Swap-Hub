@@ -24,7 +24,7 @@ const useBookById = (bookId) => {
     fetchBookData();
   }, [bookId]);
 
-  return { book, isLoading, error };
+  return { book, setBook, isLoading, error };
 };
 
 export { useBookById };

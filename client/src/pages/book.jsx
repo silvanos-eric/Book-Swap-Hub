@@ -16,7 +16,7 @@ import { showErrorToast, showSuccessToast } from "../utils";
 const Book = () => {
   const { bookId } = useParams();
   const navigate = useNavigate();
-  const { book, loading, error } = useBookById(bookId);
+  const { book, setBook, loading, error } = useBookById(bookId);
   const { user } = useContext(UserContext);
   const { createTransaction, isLoading: transctionLoading } =
     useCreateTransaction();
@@ -32,6 +32,7 @@ const Book = () => {
         bookId: book.id,
       });
       showSuccessToast("Book purchased successfully");
+      setBook({ ...book, status: "bought" });
     } catch (err) {
       showErrorToast(err.message);
     }
@@ -48,6 +49,7 @@ const Book = () => {
         bookId: book.id,
       });
       showSuccessToast("Book rented successfully");
+      setBook({ ...book, status: "rented" });
     } catch (err) {
       showErrorToast(err.message);
     }
