@@ -47,7 +47,7 @@ class User(db.Model, SerializerMixin):
         onupdate=func.now())  # Automatically updated on record modification
 
     serialize_only = ('id', 'username', 'email', 'profile_picture',
-                      'role_name_list')
+                      'role_name_list', 'transactions')
 
     # Relationships
     books_for_sale = db.relationship('Book',
@@ -207,7 +207,7 @@ class Transaction(db.Model, SerializerMixin):
     )  # Status to track if the book is returned (applicable for rentals)
 
     serialize_only = ('id', 'transaction_date', 'user_id', 'book_id',
-                      'returned')
+                      'returned', 'book')
 
     @property
     def book(self):
