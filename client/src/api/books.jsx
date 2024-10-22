@@ -1,6 +1,7 @@
 const books = async () => {
   try {
     const response = await fetch("/api/books");
+
     if (!response.ok) {
       // handle non-200 responses
       const errorData = await response.json();

@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
+import { useNavigate } from "react-router-dom";
 
 import {
   Form,
@@ -22,12 +23,18 @@ import "./signup.css";
 const Signup = () => {
   const { signUpUser, loading } = useSignup();
   const { login } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await signUpUser(values); // Pass form values to custom hook
-      login(data);
+      const user = await signUpUser(values); // Pass form values to custom hook
+      login(user);
       showSuccessToast("Account created successfully");
+      if (user.roleNameList.includes("customer")) {
+        navigate("/customer-home");
+      } else if (user.roleNameList.includes("vendor")) {
+        navigate("/vendor-home");
+      }
     } catch (error) {
       showErrorToast(error.message);
     }
