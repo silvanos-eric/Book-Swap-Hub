@@ -15,10 +15,8 @@ const useCreateTransaction = () => {
     try {
       const serverData = await postTransactions(userData);
       setTransaction(serverData);
-      showSuccessToast("Successfully bought book");
     } catch (error) {
       setError(error);
-      showErrorToast(error.message);
     } finally {
       setIsLoading(false);
     }
