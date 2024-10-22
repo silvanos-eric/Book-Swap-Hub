@@ -223,7 +223,9 @@ class Users(Resource):
         try:
             validate_login()
             user_list = User.query.all()
-            user_dict_list = [user.to_dict() for user in user_list]
+            user_dict_list = [
+                user.to_dict(rules=('-transactions', )) for user in user_list
+            ]
             return user_dict_list
         except Exception as e:
             error = handleException(e)

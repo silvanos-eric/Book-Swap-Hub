@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
 import { useNavigate } from "react-router-dom";
 
@@ -22,7 +22,7 @@ import "./signup.css";
 
 const Signup = () => {
   const { signUpUser, loading } = useSignup();
-  const { login } = useContext(UserContext);
+  const { login, user } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -40,6 +40,14 @@ const Signup = () => {
     }
     setSubmitting(false); // Mark the form as not submitting
   };
+
+  useState(() => {
+    if (user?.roleNameList.includes("customer")) {
+      navigate("/customer-home");
+    } else if (user?.roleNameList.includes("vendor")) {
+      navigate("/vendor-home");
+    }
+  }, [user]);
 
   return (
     <Container

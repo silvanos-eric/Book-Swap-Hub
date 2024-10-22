@@ -47,7 +47,7 @@ class User(db.Model, SerializerMixin):
         onupdate=func.now())  # Automatically updated on record modification
 
     serialize_only = ('id', 'username', 'email', 'profile_picture',
-                      'role_name_list', 'transactions')
+                      'role_name_list', 'purchased_books')
 
     # Relationships
     books_for_sale = db.relationship('Book',
