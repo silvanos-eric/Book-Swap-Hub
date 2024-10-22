@@ -12,6 +12,8 @@ import Card from "react-bootstrap/Card";
 import Image from "react-bootstrap/Image";
 import ListGroup from "react-bootstrap/ListGroup";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
 // Custom components
 import { Header } from "./header";
@@ -36,4 +38,6 @@ export {
   Image,
   ListGroup,
   ButtonGroup,
+  Tab,
+  Tabs,
 };
