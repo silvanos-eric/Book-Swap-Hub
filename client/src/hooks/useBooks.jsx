@@ -3,11 +3,10 @@ import { useCallback, useState } from "react";
 import { books } from "../api";
 
 const useBooks = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const getBooks = useCallback(async () => {
-    setLoading(true);
     setError(null);
 
     try {

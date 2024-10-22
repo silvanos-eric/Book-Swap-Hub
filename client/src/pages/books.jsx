@@ -1,14 +1,16 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { Container, Row, Col, Spinner } from "../components";
+import { Container, Row, Col, Spinner, Card, Button } from "../components";
 import { BooksContext } from "../contexts";
-import { Card, Button } from "../components";
+import { trimText } from "../utils";
 
 const Books = () => {
   const { books, loading, error } = useContext(BooksContext);
+  const navigate = useNavigate();
 
   const handleDetailsClick = (bookId) => {
-    console.log(bookId);
+    navigate(`/books/${bookId}`);
   };
 
   const variants = [
@@ -24,32 +26,36 @@ const Books = () => {
     <Spinner key={variant} variant={variant} animation="grow" />
   ));
 
-  const bookCards = books?.map((book) => (
-    <Col key={book.id} sm={6} md={5} lg={4} xl={3} className="mb-4">
-      <Card>
-        <Card.Img
-          variant="top"
-          src={book.imageUrl}
-          className="object-fit-cover"
-          style={{
-            height: 250,
-          }}
-        />
-        <Card.Body>
-          <Card.Title>{book.title}</Card.Title>
-          <Card.Text>{book.description}</Card.Text>
-          <Button
-            onClick={() => {
-              handleDetailsClick(book.id);
+  const bookCards = books?.map((book) => {
+    const trimmedDescription = trimText(book.description, 50);
+
+    return (
+      <Col key={book.id} sm={6} md={5} lg={4} xl={3} className="mb-4">
+        <Card>
+          <Card.Img
+            variant="top"
+            src={book.imageUrl}
+            className="object-fit-cover"
+            style={{
+              height: 250,
             }}
-            variant="primary"
-          >
-            Details
-          </Button>
-        </Card.Body>
-      </Card>
-    </Col>
-  ));
+          />
+          <Card.Body>
+            <Card.Title>{book.title}</Card.Title>
+            <Card.Text>{trimmedDescription}</Card.Text>
+            <Button
+              onClick={() => {
+                handleDetailsClick(book.id);
+              }}
+              variant="primary"
+            >
+              Details
+            </Button>
+          </Card.Body>
+        </Card>
+      </Col>
+    );
+  });
 
   return (
     <Container as="main" className="py-5 d-flex flex-column h-100">

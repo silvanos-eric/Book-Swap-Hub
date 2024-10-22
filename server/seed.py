@@ -62,7 +62,7 @@ def seed():
             price = fake.random_int(min=20, max=500)
             condition = rc.choice(['new', 'used'])
             image_url = fake.image_url()
-            description = fake.sentence(nb_words=10)
+            description = fake.sentence(nb_words=100)
 
             new_book = Book(
                 title=title,

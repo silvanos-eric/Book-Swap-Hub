@@ -11,9 +11,9 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   const handleCTAClick = () => {
-    if (user?.role_name_list?.includes("customer")) {
+    if (user?.roleNameList?.includes("customer")) {
       navigate("/customer-home");
-    } else if (user?.role_name_list?.includes("vendor")) {
+    } else if (user?.roleNameList?.includes("vendor")) {
       navigate("/vendor-home");
     } else {
       navigate("/signup");

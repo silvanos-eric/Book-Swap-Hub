@@ -27,16 +27,6 @@ const UserProvider = ({ children }) => {
   }, [navigate, checkUserSession]); // Make sure useEffect has proper dependencies
 
   // Redirect based on user state changes
-  useEffect(() => {
-    if (user == null) {
-      // do nothing
-    } else if (user?.role_name_list?.includes("customer")) {
-      navigate("/customer-home");
-    } else if (user?.role_name_list?.includes("vendor")) {
-      navigate("/vendor-home");
-    }
-  }, [user, navigate]);
-
   const login = (data) => {
     setUser(data);
   };

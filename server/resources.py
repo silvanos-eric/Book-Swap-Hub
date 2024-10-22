@@ -401,7 +401,7 @@ class Transactions(Resource):
         try:
             user_id = validate_login()
 
-            data = request.json
+            data = request.snake_case_data
 
             transaction_type = data['transaction_type']
             book_id = data['book_id']
