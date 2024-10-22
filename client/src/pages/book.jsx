@@ -1,9 +1,8 @@
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useBookById } from "../hooks";
 import {
-  Col,
   Container,
   Row,
   Image,
@@ -11,11 +10,27 @@ import {
   ButtonGroup,
   Button,
 } from "../components";
+import { UserContext } from "../contexts";
 
 const Book = () => {
   const { bookId } = useParams();
-
+  const navigate = useNavigate();
   const { book, loading, error } = useBookById(bookId);
+  const { user } = useContext(UserContext);
+
+  const handleBuyClick = () => {
+    if (!user) {
+      navigate("/login");
+    }
+    console.log("buy");
+  };
+
+  const handleRentClick = () => {
+    if (!user) {
+      navigate("/login");
+    }
+    console.log("rent");
+  };
 
   useEffect(() => {}, [bookId]);
 
@@ -53,12 +68,24 @@ const Book = () => {
               <ListGroup.Item>Condition: {book.condition}</ListGroup.Item>
             </ListGroup>
           </Row>
-          <Row as="section" className="mt-4">
-            <ButtonGroup aria-label="Basic example">
-              <Button variant="success">Buy</Button>
-              <Button variant="secondary">Rent</Button>
-            </ButtonGroup>
-          </Row>
+          {book.status == "available" && (
+            <Row as="section" className="mt-4">
+              <ButtonGroup aria-label="Basic example">
+                <Button onClick={handleBuyClick} variant="success">
+                  Buy
+                </Button>
+                <Button onClick={handleRentClick} variant="secondary">
+                  Rent
+                </Button>
+              </ButtonGroup>
+            </Row>
+          )}
+          {book.status == "rented" && (
+            <p className="lead fst-italic">
+              Book is currently rented. Be on the look out for when it is next
+              available.
+            </p>
+          )}
         </>
       )}
     </Container>
