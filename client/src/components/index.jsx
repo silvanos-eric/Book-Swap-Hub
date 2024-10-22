@@ -9,6 +9,9 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import Form from "react-bootstrap/Form";
 import Spinner from "react-bootstrap/Spinner";
 import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
+import ListGroup from "react-bootstrap/ListGroup";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 
 // Custom components
 import { Header } from "./header";
@@ -30,4 +33,7 @@ export {
   Form,
   Spinner,
   Card,
+  Image,
+  ListGroup,
+  ButtonGroup,
 };
