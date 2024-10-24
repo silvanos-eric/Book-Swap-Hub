@@ -118,9 +118,11 @@ Here are the key API endpoints available in the app:
 - **Review**: Stores user reviews and ratings for books.
 - **Role**: Defines user roles in the system (vendor or customer).
 
+## License
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
 ## Deployment
 
 This app has been deployed on Render. Click on this link [Book Swap hub](https://book-swap-hub.onrender.com/) to see the live app.
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+
