@@ -47,7 +47,7 @@ class User(db.Model, SerializerMixin):
         onupdate=func.now())  # Automatically updated on record modification
 
     serialize_only = ('id', 'username', 'email', 'profile_picture',
-                      'role_name_list')
+                      'role_name_list', 'purchased_books')
 
     # Relationships
     books_for_sale = db.relationship('Book',
@@ -140,6 +140,8 @@ class Book(db.Model, SerializerMixin):
                        nullable=False)  # Author's name (required)
     price = db.Column(db.Numeric(10, 2), nullable=False,
                       default=0.00)  # Price of the book, default is 0.00
+    image_url = db.Column(db.Text)
+    description = db.Column(db.Text)
     condition = db.Column(
         Enum('new', 'used', name='book_condition'),
         nullable=False,
@@ -156,7 +158,7 @@ class Book(db.Model, SerializerMixin):
     )  # Foreign key to the users table
 
     serialize_only = ('id', 'title', 'author', 'price', 'condition', 'status',
-                      'user_id')
+                      'user_id', 'image_url', 'description')
 
     # Relationships
     reviews = db.relationship('Review',
@@ -205,7 +207,7 @@ class Transaction(db.Model, SerializerMixin):
     )  # Status to track if the book is returned (applicable for rentals)
 
     serialize_only = ('id', 'transaction_date', 'user_id', 'book_id',
-                      'returned')
+                      'returned', 'book')
 
     @property
     def book(self):

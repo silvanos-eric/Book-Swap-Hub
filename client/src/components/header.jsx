@@ -16,12 +16,23 @@ const Header = () => {
     navigate("/");
   };
 
+  const userHomeLink = user?.roleNameList.includes("customer")
+    ? "/customer-home"
+    : "/vendor-home";
+
   return (
     <Navbar expand="lg" className="bg-white p-3">
       <Container>
         <Navbar.Brand as={NavLink} to="/">
           Book Swap Hub
         </Navbar.Brand>
+        {user && (
+          <Nav>
+            <Nav.Link as={NavLink} to={userHomeLink}>
+              Home
+            </Nav.Link>
+          </Nav>
+        )}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
@@ -35,7 +46,7 @@ const Header = () => {
                 </Nav.Link>
               </>
             )}
-            <Nav.Link as={NavLink} to="/catalogue">
+            <Nav.Link as={NavLink} to="/books">
               Catalogue
             </Nav.Link>
             {!!user && (

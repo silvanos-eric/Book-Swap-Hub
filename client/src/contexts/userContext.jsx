@@ -14,7 +14,7 @@ const UserProvider = ({ children }) => {
 
   // Check session on app load or refresh
   useEffect(() => {
-    const checkSession = async () => {
+    const fetchUser = async () => {
       try {
         const user = await checkUserSession(); // Ensure asynchronous call is awaited
         setUser(user);
@@ -23,20 +23,10 @@ const UserProvider = ({ children }) => {
       }
     };
 
-    checkSession();
+    fetchUser();
   }, [navigate, checkUserSession]); // Make sure useEffect has proper dependencies
 
   // Redirect based on user state changes
-  useEffect(() => {
-    if (user == null) {
-      // do nothing
-    } else if (user?.role_name_list?.includes("customer")) {
-      navigate("/customer-home");
-    } else if (user?.role_name_list?.includes("vendor")) {
-      navigate("/vendor-home");
-    }
-  }, [user, navigate]);
-
   const login = (data) => {
     setUser(data);
   };

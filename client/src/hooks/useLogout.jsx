@@ -11,8 +11,9 @@ const useLogout = () => {
   const { logout } = useContext(UserContext);
 
   const logOutUser = useCallback(async () => {
+    setLoading(true);
+
     try {
-      setLoading(true);
       logoutApi(); // Clear session
       logout(); // Clear state
       navigate("/");

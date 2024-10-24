@@ -16,16 +16,23 @@ import {
 } from "../utils";
 import { useLogin } from "../hooks";
 import { UserContext } from "../contexts";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { logInUser, loading } = useLogin();
   const { login } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await logInUser(values); // Pass form values to custom hook
-      login(data);
+      const user = await logInUser(values); // Pass form values to custom hook
+      login(user);
       showSuccessToast("Login success");
+      if (user.roleNameList.includes("customer")) {
+        navigate("/customer-home");
+      } else if (user.roleNameList.includes("vendor")) {
+        navigate("/vendor-home");
+      }
     } catch (error) {
       showErrorToast(error.message);
     }
@@ -83,7 +90,7 @@ const Login = () => {
                 type="submit"
               >
                 {loading ? (
-                  <Spinner animation="border" role="status">
+                  <Spinner animation="border" role="status" size="sm">
                     <span className="visually-hidden">Loading...</span>
                   </Spinner>
                 ) : (
