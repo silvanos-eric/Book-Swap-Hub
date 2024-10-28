@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext } from "react";
 import PropTypes from "prop-types";
 
 import { useBooks } from "../hooks";
@@ -6,21 +6,10 @@ import { useBooks } from "../hooks";
 const BooksContext = createContext();
 
 const BooksProvider = ({ children }) => {
-  const [books, setBooks] = useState();
-  const { getBooks, loading, error } = useBooks();
-
-  // Automatically fetch data when the context provider is mounted
-  useEffect(() => {
-    const fetchBooks = async () => {
-      const data = await getBooks();
-      setBooks(data);
-    };
-
-    fetchBooks();
-  }, [getBooks]);
+  const { loadingBooks, books, errorBooks } = useBooks();
 
   return (
-    <BooksContext.Provider value={{ books, loading, error }}>
+    <BooksContext.Provider value={{ books, loadingBooks, errorBooks }}>
       {children}
     </BooksContext.Provider>
   );

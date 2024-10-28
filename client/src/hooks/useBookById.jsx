@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
-import { bookById } from "../api";
+import { getBook } from "../api";
+import { BooksContext } from "../contexts";
 
 const useBookById = (bookId) => {
   const [book, setBook] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { books } = useContext(BooksContext);
+
   useEffect(() => {
     if (!bookId) return;
 
     const fetchBookData = async () => {
       try {
-        const bookData = await bookById(bookId);
+        const bookData = await getBook(bookId);
         setBook(bookData);
       } catch (err) {
         setError(err.message);
@@ -21,8 +24,12 @@ const useBookById = (bookId) => {
       }
     };
 
-    fetchBookData();
-  }, [bookId]);
+    if (books.length < 1) {
+      fetchBookData();
+    } else {
+      setBook(() => books.find((book) => book.id == bookId));
+    }
+  }, [bookId, books]);
 
   return { book, setBook, isLoading, error };
 };
