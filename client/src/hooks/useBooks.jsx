@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getAllBooks } from "../api";
+import { getBooks } from "../api";
 
 const useBooks = () => {
   const [books, setBooks] = useState([]);
@@ -12,7 +12,7 @@ const useBooks = () => {
     setLoadingBooks(true);
 
     try {
-      const data = await getAllBooks(); // Fetch books from API
+      const data = await getBooks(); // Fetch books from API
       setBooks(data);
     } catch (error) {
       const message = error.message;

@@ -1,4 +1,4 @@
-const bookById = async (id) => {
+const getBook = async (id) => {
   try {
     const response = await fetch(`/api/books/${id}`);
 
@@ -15,4 +15,6 @@ const bookById = async (id) => {
   }
 };
 
-export { bookById };
+const updateBook = async (id) => {};
+
+export { getBook, updateBook };

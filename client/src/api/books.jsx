@@ -1,6 +1,8 @@
-const getAllBooks = async () => {
+const endpoint = "/api/books";
+
+const getBooks = async () => {
   try {
-    const response = await fetch("/api/books");
+    const response = await fetch(endpoint);
 
     if (!response.ok) {
       // handle non-200 responses
@@ -15,6 +17,6 @@ const getAllBooks = async () => {
   }
 };
 
-const createBook = async () => {};
+const postBooks = async () => {};
 
-export { getAllBooks, createBook };
+export { getBooks, postBooks };
