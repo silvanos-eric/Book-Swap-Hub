@@ -1,26 +1,33 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { books } from "../api";
+import { getBooks } from "../api";
 
 const useBooks = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [books, setBooks] = useState([]);
+  const [loadingBooks, setLoadingBooks] = useState(false);
+  const [errorBooks, setErrorBooks] = useState(null);
 
-  const getBooks = useCallback(async () => {
-    setError(null);
+  const fetchBooks = useCallback(async () => {
+    setErrorBooks(null);
+    setLoadingBooks(true);
 
     try {
-      const data = await books(); // Fetch books from API
-      return data;
+      const data = await getBooks(); // Fetch books from API
+      setBooks(data);
     } catch (error) {
       const message = error.message;
-      setError(message);
+      setErrorBooks(message);
     } finally {
-      setLoading(false);
+      setLoadingBooks(false);
     }
   }, []);
 
-  return { getBooks, loading, error };
+  // Fetch all books when the hook is first used
+  useEffect(() => {
+    fetchBooks();
+  }, [fetchBooks]);
+
+  return { loadingBooks, books, errorBooks };
 };
 
 export { useBooks };

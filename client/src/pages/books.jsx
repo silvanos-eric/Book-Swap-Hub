@@ -6,7 +6,7 @@ import { BooksContext } from "../contexts";
 import { trimText } from "../utils";
 
 const Books = () => {
-  const { books, loading, error } = useContext(BooksContext);
+  const { books, loadingBooks, errorBooks } = useContext(BooksContext);
   const navigate = useNavigate();
 
   const handleDetailsClick = (bookId) => {
@@ -64,16 +64,16 @@ const Books = () => {
           <h1 className="text-center">Catalogue</h1>
         </Col>
       </Row>
-      {(error || loading) && (
+      {(errorBooks || loadingBooks) && (
         <Row
           as="section"
           className="text-center flex-grow-1 d-grid"
           style={{ placeContent: "center" }}
         >
-          {loading && <Col>{spinners}</Col>}
-          {error && (
+          {loadingBooks && <Col>{spinners}</Col>}
+          {errorBooks && (
             <Col>
-              <p className="lead text-danger fst-italic">{error}</p>
+              <p className="lead text-danger fst-italic">{errorBooks}</p>
             </Col>
           )}
         </Row>
