@@ -1,4 +1,4 @@
-const books = async () => {
+const getAllBooks = async () => {
   try {
     const response = await fetch("/api/books");
 
@@ -15,4 +15,6 @@ const books = async () => {
   }
 };
 
-export { books };
+const createBook = async () => {};
+
+export { getAllBooks, createBook };
